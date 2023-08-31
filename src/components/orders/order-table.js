@@ -1,8 +1,15 @@
 import React from 'react'
-import { classNames, orders_heading } from '../../utils/helper'
+import { classNames, findDataInArray, orders_heading } from '../../utils/helper'
 import Heading from '../../shared/heading/Heading'
+import useHistory from '../../hooks/useHistory'
+import { useSelector } from 'react-redux'
 
-const OrderTable = ({data, ...props }) => {
+const OrderTable = ({ data, loading, ...props }) => {
+
+  const history = useHistory()
+  const handleNavigate = (path = '/') => history(path)
+  const updateOrders = useSelector(({ updateOrders }) => updateOrders)
+
   return (
     <div {...props}>
       <table className="w-full text-left table-auto">
@@ -10,7 +17,7 @@ const OrderTable = ({data, ...props }) => {
           <tr>
             {orders_heading?.map((val, index) => (
               <th
-                key={val}
+                key={index}
                 className={classNames(
                   'py-3',
                   index === 0 ? 'first:rounded-l-md first:rounded-bl-md pl-4' : '',
@@ -25,26 +32,34 @@ const OrderTable = ({data, ...props }) => {
           </tr>
         </thead>
         <tbody>
-          {
-            data?.map((val) => (
-              <tr key={val} >
+          {loading ? <tr>
+            <td className='p-4 text-center' colSpan={orders_heading?.length} >Please wait...</td>
+          </tr> : <> {
+            findDataInArray(data, updateOrders)?.map((val, index) => (
+              <tr key={index} className='cursor-pointer' onClick={() => handleNavigate(`/orders/details/${val?.id}`)} >
                 <td className={classNames('pl-0 md:pl-4')}>
-                  <div className='mt-6'>
-                    <p className='mb-1 text-black' >3891 Ranchview Dr. Richardson, California 62639</p>
-                    <p className='text-gray2 text-sm'>California</p>
+                  {val?.customer_address ? <div className='mt-6'>
+                    <p className='mb-1 text-black' >{val?.customer_address?.streetName}, {val?.customer_address?.locality} ({val?.customer_address?.postCode})</p>
+                    <p className='text-gray2 text-sm'>{val?.customer_address?.country}</p>
+                  </div> : <div className='mt-6'>
+                      <p className='text-black' >No address</p>
                   </div>
+                  }
                 </td>
                 <td>
                   <div className='mt-6'>
-                    <p className='mb-1 text-black' >Rabri (1) + Fries</p>
-                    <p className='text-gray2 text-sm'>$3.20 +2.20</p>
+                    <p className='mb-1 text-black' >{
+                        val?.order_items?.map(item => item.name).join(' + ')
+                    }</p>
+                    <p className='text-gray2 text-sm'>Total: ${val?.totalAmount}</p>
                   </div>
                 </td>
                 <td>
-                  <p className='text-orange bg-[#FFF5E0] rounded-[36px] px-[10px] py-1 inline-block' >Preparing</p>
+                  <p className={classNames('rounded-[36px] px-[10px] py-1 inline-block', val?.orderStatus === 'Cancelled' ? "text-red bg-[#fbe0e0]" : "text-orange bg-[#FFF5E0]")} >{val?.orderStatus}</p>
                 </td>
               </tr>
             ))
+          }</>
           }
         </tbody>
       </table>

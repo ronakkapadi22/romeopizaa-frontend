@@ -24,14 +24,14 @@ const AllSet = ({ ...props }) => {
 			const response = await deviceVerification({...authSession})
 
 			if(response?.data){
-				console.log('response?.data', response?.data?.data)
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
 				})
+				const user = decodeToken(response?.data?.data?.token)
 				dispatch(setLoggedUser({
 					token: response?.data?.data?.token,
 					isLogged: isTokenActivated(response?.data?.data?.token),
-					user: decodeToken(response?.data?.data?.token),
+					user: {...user, id: Number(user.sub)},
 					...response?.data?.data
 				}))
 				setDataFromLocal('token', response?.data?.data?.token)
@@ -41,7 +41,6 @@ const AllSet = ({ ...props }) => {
 
 		} catch (error) {
 			setLoading(false)
-			console.log('error', error)
 			enqueueSnackbar(error?.response?.message || 'Somthing went wrong.', {
 				variant: 'error'
 			})

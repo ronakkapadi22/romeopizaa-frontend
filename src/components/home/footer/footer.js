@@ -1,8 +1,12 @@
 import React from 'react'
 import Copyright from './copyright'
 import Icons from '../../../shared/Icons'
+import { useSelector } from 'react-redux'
 
 const Footer = () => {
+
+	const store = useSelector(({store}) => store?.storeDetail)
+
 	return (
 		<div className="w-full">
 			<div className="grid lg:grid-cols-2 gap-4 p-[36px] md:p-[80px] bg-black ">
@@ -32,15 +36,15 @@ const Footer = () => {
 							<ul>
 								<li className="flex items-center mb-[10px]">
 									<Icons className="w-[20px] h-[20px] mr-3" id="phone" />{' '}
-									800-323-4567
+									{store?.data?.phone || 800-323-4567}
 								</li>
 								<li className="flex items-center mb-[10px]">
 									<Icons className="w-[20px] h-[20px] mr-3" id="timer" />{' '}
-									Mon-Sun 8:00am - 10:00pm{' '}
+									{`Mon-Sun ${store?.data?.startTime || '8:00AM'} - ${store?.data?.endTime || '10:00PM'}`}
 								</li>
 								<li className="flex items-center mb-[10px]">
 									<Icons className="w-[20px] h-[20px] mr-3" id="email" />{' '}
-									info@reneospizza.uk
+									{ store?.data?.email || 'info@reneospizza.uk'}
 								</li>
 							</ul>
 						</div>

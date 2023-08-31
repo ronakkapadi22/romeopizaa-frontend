@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import OtpInput from 'react-otp-input'
 import Icons from '../../../shared/Icons'
 import IconButton from '../../../shared/Buttons/IconButton'
@@ -13,8 +13,8 @@ import Button from '../../../shared/Buttons/Button'
 import LinkButton from '../../../shared/Buttons/LinkButton'
 import { useDispatch, useSelector } from 'react-redux'
 import { validation } from '../../../utils/validation'
-import { otpVerificationWithRegister } from '../../../api/api'
-import { setAuthKey, setLoggedUser } from '../../../redux/action'
+import { otpVerificationWithRegister, sendOtpWithRegister } from '../../../api/api'
+import { setAuthKey, setLoggedUser, setupAuthData } from '../../../redux/action'
 import useHistory from '../../../hooks/useHistory'
 import { setDataFromLocal } from '../../../utils/localStorage'
 import { enqueueSnackbar } from 'notistack'
@@ -22,10 +22,15 @@ import { enqueueSnackbar } from 'notistack'
 const Otp = ({ isLoginRoute, ...props }) => {
 	const history = useHistory()
 	const authSession = useSelector(({ authSteps }) => authSteps?.user_registation)
+	const phone_number = useSelector(({ authSteps }) => authSteps?.phone_number)
 	const dispatch = useDispatch()
 	const [otp, setOtp] = useState('')
 	const [error, setError] = useState('')
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState({
+		resend: false,
+		otp: false
+	})
+	const [seconds, setSeconds] = useState(10)
 
 	const handleLogin = (data) => {
 		if (isTokenActivated(data?.token)) {
@@ -34,13 +39,30 @@ const Otp = ({ isLoginRoute, ...props }) => {
 		}
 	}
 
+	useEffect(() => {
+		const interval = setInterval(() => {
+		  if (seconds > 0) {
+			setSeconds(seconds - 1)
+		  }
+		  if (seconds === 0) {
+			clearInterval(interval)
+		  }
+		}, 1000)
+	  
+		return () => {
+		  clearInterval(interval)
+		}
+	  }, [seconds])
+
 	const handleOtpVerification = async (isLogin) => {
-		setLoading(true)
+		setLoading({...loading, otp: true})
 		try {
 			const payload = {
 				countryCode: authSession?.countryCode,
 				phoneNumber: authSession?.phoneNumber,
 				email: authSession?.email,
+				fName: authSession?.fName,
+				lName: authSession?.lName,
 				password: authSession?.password,
 				otp: authSession?.otp
 			}
@@ -49,23 +71,24 @@ const Otp = ({ isLoginRoute, ...props }) => {
 
 			if(response?.data){
 				const { data } = response?.data
-				setLoading(false)
+				setLoading({...loading, otp: false})
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
 				})
 				!isLogin && dispatch(setAuthKey('terms_condition'))
+				const user = decodeToken(data?.token)
 				isLogin && dispatch(
 					setLoggedUser({
 						token: data?.token,
 						isLogged: isTokenActivated(data?.token),
-						user: decodeToken(data?.token)
+						user: {...user, id: Number(user?.sub)}
 					})
 				)
 				isLogin && handleLogin(response?.data)
 			}
 
 		} catch (error) {
-			setLoading(false)
+			setLoading({...loading, otp: false})
 			if (error?.response?.data) {
 				enqueueSnackbar(error?.response?.data?.data?.['otp']?.[0], {
 					variant: 'error'
@@ -96,12 +119,57 @@ const Otp = ({ isLoginRoute, ...props }) => {
 		setError(validation('otp', val, authSession?.otp))
 	}
 
+	const handleRedirect = useCallback(() => {
+		dispatch(setAuthKey('phone_number'))
+		dispatch(setupAuthData({
+			otp: '',
+			countryCode: '',
+			email: '',
+			password: '',
+			phoneNumber: '',
+			fName: '',
+			lName: ''
+
+		}))
+	}, [dispatch])
+
+	const resentOtp = useCallback(async() => {
+		setLoading({...loading, resend: true})
+		try {
+			const response = await sendOtpWithRegister({
+				countryCode: authSession?.countryCode,
+				phoneNumber: authSession?.phoneNumber,
+				email: authSession?.email,
+				password: authSession?.password
+			})
+			if(response?.data){
+				setLoading({...loading, resend: false})
+				dispatch(setupAuthData({
+                  ...authSession,  otp: response?.data?.data?.otp || ''}))
+				setSeconds(10)
+			}
+		} catch (error) {
+			setLoading({...loading, resend: false})
+			if (error?.response?.data) {
+				enqueueSnackbar(error?.response?.data || 'Somthing went wrong.', {
+					variant: 'error'
+				})
+			}
+			return error
+		}
+	}, [dispatch])
+
+	const handleResetOtp = useCallback(async() => {
+		if(seconds !== 0) return
+		await resentOtp()
+	}, [seconds])
+
 	return (
 		<div
 			className="relative w-full px-4 sm:px-[80px] h-[calc(100vh-92px)] flex items-center justify-center"
 			{...props}
 		>
-			<IconButton className="absolute left-4 top-4 bg-cultured rounded-[48px] p-4 sm:top-[80px] sm:left-[80px]">
+			<IconButton onClick={handleRedirect} className="absolute left-4 top-4 bg-cultured rounded-[48px] p-4 sm:top-[80px] sm:left-[80px]">
 				<Icons id="left" />
 			</IconButton>
 			<div className="flex justify-center items-center">
@@ -110,7 +178,7 @@ const Otp = ({ isLoginRoute, ...props }) => {
 						headClass="text-black"
 						{...{
 							tag: 'head_4',
-							text: `Enter the 4-digit code sent to you at${authSession?.phone_number?.masked}.`
+							text: `Enter the 4-digit code sent to you at ${phone_number?.masked}.`
 						}}
 					/>
 					<Form className="mt-8" handleSubmit={handleSubmit}>
@@ -139,18 +207,18 @@ const Otp = ({ isLoginRoute, ...props }) => {
 							/>
 							<Button
 								size="large"
-								label={loading ? 'Please wait' : 'Next'}
-								disabled={loading}
+								label={loading.otp ? 'Please wait' : 'Next'}
+								disabled={loading.otp}
 								type="submit"
 								btnClass="w-full mt-[40px]"
 								apperianceType="primary"
 							/>
 							<p className="text-center text-gray1 text-[16px] leading-[24px] mt-6">
-								I didn’t receive a code (0:08)
+								I didn’t receive a code ({`00:${seconds < 10 ? `0${seconds}` : seconds}`})
 							</p>
-							<LinkButton
-								{...{ label: 'Resend' }}
-								className="text-[#2873E4] text-lg font-medium text-center cursor-pointer"
+							<LinkButton onClick={handleResetOtp} disabled={seconds !== 0}
+								{...{ label: loading.resend ? 'Wait':'Resend' }}
+								className={classNames("text-lg font-medium text-center cursor-pointer", seconds === 0 ? 'text-[#2873E4]': 'text-gray1')}
 							/>
 						</div>
 					</Form>

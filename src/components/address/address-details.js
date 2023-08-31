@@ -6,16 +6,16 @@ import FieldGroup from '../../shared/forms/FieldGroup'
 import Input from '../../shared/forms/Input'
 import { coutryResponse, newAndUpdateAddress } from '../../api/api'
 import { enqueueSnackbar } from 'notistack'
-import Selector from '../../shared/forms/Selector'
 import Button from '../../shared/Buttons/Button'
 import { validation } from '../../utils/validation'
 import { useSelector } from 'react-redux'
+import CountryList from '../../shared/coutry-selector/CoutryList'
 
 const initialState = {
 	addressName: '',
 	streetName: '',
 	locality: '',
-	country: '',
+	country: 'United Kingdom',
 	postCode: '',
 	type: 'BILLING'
 }
@@ -27,6 +27,7 @@ const AddressDetails = ({ handleClose }) => {
 	const [country, setCoutry] = useState([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState({})
+
 
 	const getCoutryCode = useCallback(async () => {
 		try {
@@ -42,8 +43,6 @@ const AddressDetails = ({ handleClose }) => {
 		}
 	}, [])
 
-	console.log('address', address)
-
 	useEffect(() => {
 		getCoutryCode()
 	}, [])
@@ -54,11 +53,12 @@ const AddressDetails = ({ handleClose }) => {
 
 	const handleChange = (e) => {
 		const { name, value } = e.target
+		const val = name !== 'postCode' ? value : value?.length > 8 ? formData.postCode : String(value).split('').map(i => i.toUpperCase()).join('')
 		setFormData({
-			...formData, [name]: value
+			...formData, [name]: val
 		})
 		setError({
-			...error, [name]: validation(name, value)
+			...error, [name]: validation(name, val)
 		})
 	}
 
@@ -96,14 +96,15 @@ const AddressDetails = ({ handleClose }) => {
 				error[val] = message
 			}
 		})
-		console.log('error', error)
 		if (Object.keys(error).length) {
 			setError({ ...error, ...error })
 			return
 		}
 
-
-		await submitAddress()
+		if(customer){
+			return await submitAddress()
+		}
+		handleClose('address', {login: true})
 	}
 
 	const addressData = [
@@ -136,8 +137,8 @@ const AddressDetails = ({ handleClose }) => {
 			name: 'postCode',
 			value: formData.postCode,
 			onChange: handleChange,
-			placeholder: 'Postal Code',
-			type: 'number',
+			placeholder: 'Post Code',
+			type: 'text',
 			error: error['postCode'],
 			className: 'col-span-12 md:col-span-6',
 			isHideLabel: true,
@@ -163,7 +164,7 @@ const AddressDetails = ({ handleClose }) => {
 				<Heading
 					tag="head_3"
 					headClass="text-2xl lg::text-[32px]"
-					text="Address Details"
+					text="Delivery address"
 				/>
 				<Icons id="close" className="cursor-pointer" onClick={() => handleClose('address')} />
 			</div>
@@ -176,15 +177,15 @@ const AddressDetails = ({ handleClose }) => {
 					)
 				)}
 				<FieldGroup isHideError isHideLabel {...{ className: 'col-span-12 md:col-span-6' }}>
-					<Selector className="!min-w-full cursor-pointer" {...{
+					<CountryList className="!min-w-full cursor-pointer" {...{
 						id: 'country',
 						name: 'country',
 						value: formData.country,
-						onChange: handleChange,
+						handleChange: handleChange,
 						placeholder: 'Country',
 						type: 'select',
 						error: error['country'],
-						options: country?.map(({ caa2, name }) => ({ id: caa2, label: name?.common, value: name?.common })).
+						option: country?.map(({ caa2, name }) => ({ id: caa2, label: name?.common, value: name?.common })).
 							sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0))
 					}} />
 				</FieldGroup>

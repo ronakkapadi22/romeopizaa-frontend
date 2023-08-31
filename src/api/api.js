@@ -1,3 +1,4 @@
+import axios from 'axios'
 import API from './index'
 
 export const userLogin = async (payload) => {
@@ -22,6 +23,20 @@ export const deviceVerification = async (payload) => {
 
 export const getProfileDetails = async (payload) => {
 	const response = await API.post('/customer/profile', payload)
+	return response
+}
+
+export const updateProfile = async (payload) => {
+	const response = await axios({
+		method: 'post',
+		url: 'https://romeospizza.uk/office/public/api/v1/customer/profileupdate',
+		data: payload,
+		headers: {
+			Authorization: 'Bearer '+localStorage.getItem('token'),
+			'Content-Type': "multipart/form-data"
+		}
+	
+	})
 	return response
 }
 
@@ -71,6 +86,55 @@ export const newAndUpdateAddress = async(payload) => {
 
 export const deleteAddress = async(payload) => {
 	const response = await API.post('/customeraddress/delete', payload)
+	return response
+}
+
+export const createOrder = async(payload) => {
+	const response = await API.post('/orders/create', payload)
+	return response
+}
+
+export const updateOrder = async(payload) => {
+	const response = await API.post('/orders/update', payload)
+	return response
+}
+
+export const deleteOrder = async(payload) => {
+	const response = await API.post('/orders/delete', payload)
+	return response
+}
+
+export const getOrder = async(payload) => {
+	const response = await API.post('/orders/info', payload)
+	return response
+}
+
+export const getBookingTables = async(payload) => {
+	const response = await API.post('/storestables', payload)
+	return response
+}
+
+export const createTableBooking = async(payload) => {
+	const response = await API.post('/storestables/booking/create', payload)
+	return response
+}
+
+export const getAllOrders = async(payload) => {
+	const response = await API.post('/customer/orders', payload)
+	return response
+}
+
+export const getSearchFood = async(payload) => {
+	const response = await API.post('/products/search', payload)
+	return response
+}
+
+export const createPaymentIntent = async(payload) => {
+	const response = await API.post('/orders/stripepaymentintents', payload)
+	return response
+}
+export const getDiscount = async(payload) => {
+	const response = await API.post('/discounts', payload)
 	return response
 }
 

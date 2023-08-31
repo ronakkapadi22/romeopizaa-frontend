@@ -1,7 +1,8 @@
 import { constant } from '../constant'
 
 const initialState = {
-	storeDetail: {}
+	storeDetail: {},
+	stores: []
 }
 
 export const storeData = (state = initialState, action) => {
@@ -12,6 +13,8 @@ export const storeData = (state = initialState, action) => {
 				...state,
 				storeDetail: payload
 			}
+		case constant.STORES:
+			return { ...state, stores: payload }
 		default:
 			return state
 	}

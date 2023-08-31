@@ -7,9 +7,11 @@ const initialState = {
 		masked: null
 	},
 	user_registation: {
-		countryCode: "+91",
+		countryCode: "+44",
 		email: '',
 		password: '',
+		fName: '',
+		lName: '',
     	phoneNumber: '',
     	otp: '',
     	acceptterms: 1,

@@ -6,6 +6,7 @@ import { setLogOutUser, setLoggedUser } from './redux/action'
 import { useDispatch } from 'react-redux'
 import { enqueueSnackbar } from 'notistack'
 import { getProfileDetails } from './api/api'
+import Loader from './shared/Loader/Loader'
 
 const App = () => {
 	const dispatch = useDispatch()
@@ -27,7 +28,7 @@ const App = () => {
 			})
 			return error
 		}
-	})
+	}, [])
 
 	useEffect(() => {
 		const isTokenActive = isTokenActivated(token)
@@ -40,7 +41,7 @@ const App = () => {
 	}, [token])
 
 	return (
-		<Suspense fallback={<p>Loading...</p>}>
+		<Suspense fallback={<Loader/>}>
 			<Routing />
 		</Suspense>
 	)

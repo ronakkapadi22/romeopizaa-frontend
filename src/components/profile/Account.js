@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Heading from '../../shared/heading/Heading'
 import Form from '../../shared/forms/Form'
 import Button from '../../shared/Buttons/Button'
@@ -8,27 +8,31 @@ import FileUpload from '../../shared/forms/FileUpload'
 import CountrySelector from '../../shared/coutry-selector'
 import { validation } from '../../utils/validation'
 import { enqueueSnackbar } from 'notistack'
-import { getProfileDetails } from '../../api/api'
+import { getProfileDetails, updateProfile } from '../../api/api'
+import { useSelector } from 'react-redux'
 
 const initialState = {
-	profile: '',
+	profile: null,
 	name: '',
 	email: '',
 	contact: '',
-	code: '+91',
-	coutry: ''
+	code: '+44',
+	coutry: 'gb'
 }
 
 const Account = ({ ...props }) => {
+	const { user } = useSelector(({auth}) => auth)
 	const [profile, setProfile] = useState(null)
 	const [account, setAccount] = useState(initialState)
+	const [reset, setReset] = useState(initialState)
 	const [error, setError] = useState(initialState)
+	const [loading, setLoading] = useState(false)
 
 	const handleChange = (e) => {
 		const { name, value, files, type } = e.target
 		const newVal = name !== 'contact' ? value : `${account.code}${value}`
-		setAccount({ ...account, [name]: type === 'file' ? files[0] : value })
-		setError({ ...error, [name]: validation(name, newVal) })
+		setAccount({ ...account, [name]: type === 'file' ? files[0] : name !== 'contact' ? value : value?.length > 11 ? account.contact : value }) 
+		setError({ ...error, [name]: validation(name, newVal, {phone: account?.contact}) })
 
 		if (type === 'file') {
 			const fileReader = new FileReader()
@@ -40,47 +44,93 @@ const Account = ({ ...props }) => {
 		}
 	}
 
-	const getProfileData = async() => {
+	const handleReset = useCallback(() => {
+		setAccount({...reset})
+		setProfile(user?.profilepath || '')
+	}, [reset, user])
+
+	const getProfileData = async () => {
 		try {
 			const response = await getProfileDetails({})
-			if(response?.data){
+			if (response?.data) {
 				const { data } = response?.data
 				setAccount({
 					...account, name: data?.fullname?.trim(),
-					code: '+'+data?.countryCode,
+					code: String(data?.countryCode).includes('+') ? data?.countryCode  : '+' + data?.countryCode,
 					contact: data?.phoneNumber,
-					email: data?.email,
-					profile: data?.profilepath
-
+					email: data?.email
 				})
+				setReset({
+					...reset, name: data?.fullname?.trim(),
+					code: String(data?.countryCode).includes('+') ? data?.countryCode  : '+' + data?.countryCode,
+					contact: data?.phoneNumber,
+					email: data?.email
+				})
+				setProfile(data?.profilepath || '')
 			}
 		} catch (error) {
 			enqueueSnackbar(error?.response?.message || 'Somthing went wrong', {
 				variant: 'error'
 			})
+			return error
 		}
 	}
 
 	useEffect(() => {
 		getProfileData()
 	}, [])
-
-	const handleSubmit = (e) => {
-		e.preventDefault()
+	
+	const updateProfilePage = async() => {
+		setLoading(true)
 		try {
-			let error = {}
-            Object.keys(account).forEach(val => {
-				const newVal = val !== 'contact' ? account[val] : `${account.code}${account[val]}`
-                const message = validation(val, newVal)
-                if (message) { error[val] = message }
-            })
-            if (Object.keys(error).length) {
-                setError({ ...error, ...error })
-                return
-            }
+			const formData = new FormData()
+			account.name.split(' ').forEach((val, index) => {
+				index === 0 && formData.append('fName', val)
+				index === 1 && formData.append('lName', val)
+			})
+			formData.append('email', account.email)
+			formData.append('phoneNumber', account.contact)
+			formData.append('profile_old', user?.profile)
+			formData.append('countryCode', account.code)
+			if(account.profile){
+				formData.append('profile', account.profile)
+			}
+
+			const response = await updateProfile(formData)
+			if(response?.data){
+				setLoading(false)
+				enqueueSnackbar(response?.data?.message, {
+					variant: 'success'
+				})
+			}
+
 		} catch (error) {
-			
+			console.log('error', error)
+			setLoading(false)
+			if (error?.response?.data) {
+				enqueueSnackbar(error?.response?.data?.data?.['phoneNumber']?.[0] || error?.response?.data?.data?.['email']?.[0], {
+					variant: 'error'
+				})
+			}
+			return error
 		}
+	}
+
+	const handleSubmit = async(e) => {
+		e.preventDefault()
+		let error = {}
+		// eslint-disable-next-line no-unused-vars
+		const { profile, coutry, code, ...other } = account
+		Object.keys({...other}).forEach(val => {
+			const newVal = val !== 'contact' ? account[val] : `${code}${account[val]}`
+			const message = validation(val, newVal)
+			if (message) { error[val] = message }
+		})
+		if (Object.keys(error).length) {
+			setError({ ...error, ...error })
+			return
+		}
+		await updateProfilePage()
 	}
 
 	const handleCoutryCode = (value) => {
@@ -117,7 +167,7 @@ const Account = ({ ...props }) => {
 							placeholder: 'Darlene Robertson',
 							onChange: handleChange,
 							className: 'sm:min-w-full',
-							error: error['name']	
+							error: error['name']
 						}}
 					/>
 				</FieldGroup>
@@ -161,7 +211,8 @@ const Account = ({ ...props }) => {
 					<Button
 						btnClass="md:mt-[40px] w-1/2 md:w-auto mr-4 px-8 md:px-[36px] lg:px-[54px]"
 						type="submit"
-						label="Update"
+						disabled={loading}
+						label={loading ? "Loading":"Update"}
 						size="large"
 						apperianceType="primary"
 					/>
@@ -169,6 +220,7 @@ const Account = ({ ...props }) => {
 						btnClass="md:mt-[40px] w-1/2 md:w-auto md:px-[36px] lg:px-[54px]"
 						type="button"
 						label="Cancel"
+						onClick={() => handleReset()}
 						size="large"
 						apperianceType="secondary"
 					/>
