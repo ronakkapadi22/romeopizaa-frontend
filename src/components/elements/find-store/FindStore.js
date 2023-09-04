@@ -5,7 +5,8 @@ import FieldGroup from '../../../shared/forms/FieldGroup'
 import Input from '../../../shared/forms/Input'
 import LocationList from '../location/locationList'
 
-const FindStore = ({ handleStoreLocation, ...props }) => {
+const FindStore = ({ handleToggle, selectConfigStore, ...props }) => {
+
 	const [storeLocation, setStoreLocation] = useState({
 		store: ''
 	})
@@ -31,17 +32,17 @@ const FindStore = ({ handleStoreLocation, ...props }) => {
 			className="relative w-[96%] md:w-[575px] p-8 mx-auto rounded-lg bg-white"
 		>
 			<div className="w-full flex justify-between items-center">
-				<Heading tag="head_3" headClass="text-2xl" text="Select Store " />
+				<Heading tag="head_3" headClass="text-2xl" text="Select Store" />
 				<Icons
 					id="close"
 					className="cursor-pointer"
-					onClick={handleStoreLocation}
+					onClick={() => handleToggle('stores')}
 				/>
 			</div>
 			<FieldGroup className="mt-4" isHideError isHideLabel>
 				<Input
 					type="text"
-					placeholder="Titas of Manila "
+					placeholder="Select your store"
 					name="store"
 					value={storeLocation.store}
 					onChange={handleChange}
@@ -50,7 +51,7 @@ const FindStore = ({ handleStoreLocation, ...props }) => {
 					clearText
 				/>
 			</FieldGroup>
-			<LocationList />
+			<LocationList {...{search: storeLocation.store, selectConfigStore}} />
 		</div>
 	)
 }

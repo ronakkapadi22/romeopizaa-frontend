@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { Fragment, useCallback } from 'react'
 import Heading from '../../shared/heading/Heading'
 import Icons from '../../shared/Icons'
 import Label from '../../shared/labels/label'
@@ -11,31 +11,38 @@ import { currentAddress, isEditAddress, removeCurrentAddress } from '../../redux
 
 const AddressList = ({ handleClose, ...props }) => {
 
-    const lists = useSelector(({address}) => address?.address)
+    const lists = useSelector(({ address }) => address?.address)
     const dispatch = useDispatch()
 
     const handleOpenAddress = useCallback((val) => {
-        handleClose('address', {addressListPopup: false})
+        handleClose('address', { addressListPopup: false })
         dispatch(isEditAddress(true))
         dispatch(currentAddress(val))
     }, [dispatch])
 
-    const removeAddress = useCallback(async(id) => {
+    const removeAddress = useCallback(async (id) => {
         try {
             const response = await deleteAddress({
                 id: String(id)
             })
             const index = lists.findIndex(val => val?.id === id)
-            if(response?.data){
+            if (response?.data) {
                 dispatch(removeCurrentAddress(index))
+                enqueueSnackbar('Address has been removed successfully', {variant: 'success'})
+                handleClose('address', { addressListPopup: false, address: false })
             }
         } catch (error) {
             enqueueSnackbar(error?.response?.data?.message || 'Somthing went wrong.', {
-				variant: 'error'
-			})
-			return error
+                variant: 'error'
+            })
+            return error
         }
     }, [])
+
+    const handleSelectAddress = useCallback((data) => {
+        dispatch(currentAddress(data))
+        handleClose('address', { addressListPopup: false, address: false })
+    }, [dispatch])
 
     return (
         <div
@@ -53,7 +60,7 @@ const AddressList = ({ handleClose, ...props }) => {
             <div className="mt-6 overflow-auto">
                 {lists.map((val, index) => (
                     <div className='flex my-4 justify-between items-start' key={val?.id} >
-                        <div className="flex items-start mb-6 cursor-pointer">
+                        <div onClick={() => handleSelectAddress(val)} className="flex items-start mb-6 cursor-pointer">
                             <div className="bg-cultured rounded-full p-[10px]">
                                 <Icons className="text-black w-5 h-5" id="location" />
                             </div>
@@ -75,7 +82,7 @@ const AddressList = ({ handleClose, ...props }) => {
                 ))}
             </div>
             <div className='w-full' >
-                <Button onClick={() => handleClose('address', {addressListPopup: false})}
+                <Button onClick={() => handleClose('address', { addressListPopup: false })}
                     btnClass="w-full text-white"
                     apperianceType="primary"
                     size="large"
@@ -87,10 +94,12 @@ const AddressList = ({ handleClose, ...props }) => {
 }
 
 const AddressListPopup = ({ toggle, handleClose, ...props }) => {
-    return <CustomPortal {...props} className="relative w-full flex items-center"
-        animation="animate-popup-top" {...{ toggle }} >
-        <AddressList {...{ handleClose }} />
-    </CustomPortal>
+    return <Fragment>
+        {toggle ? <CustomPortal {...props} className="relative w-full flex items-center"
+            animation="animate-popup-top" {...{ toggle }} >
+            <AddressList {...{ handleClose }} />
+        </CustomPortal> : null}
+    </Fragment>
 }
 
 export default AddressListPopup

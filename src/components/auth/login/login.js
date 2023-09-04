@@ -7,7 +7,7 @@ import FieldGroup from '../../../shared/forms/FieldGroup'
 import { useDispatch } from 'react-redux'
 import { setLoggedUser } from '../../../redux/action'
 import { isTokenActivated } from '../../../utils/helper'
-import { validation } from '../../../utils/validation'
+import { loginValidation } from '../../../utils/validation'
 import { userLogin } from '../../../api/api'
 import { enqueueSnackbar } from 'notistack'
 import useHistory from '../../../hooks/useHistory'
@@ -17,8 +17,8 @@ const initialState = {
 	email: '',
 	password: '',
 	phoneNumber: '',
-	countryCode: '+91',
-	country: 'in'
+	countryCode: '+44',
+	country: 'gb'
 }
 
 const Login = () => {
@@ -40,7 +40,9 @@ const Login = () => {
 	const handleChange = (e) => {
 		const { name, value } = e.target
 		setFormData({ ...formData, [name]: value })
-		setError({ ...error, [name]: validation(name, value) })
+		setError({
+			...error, [name]: loginValidation(name, value)
+		})
 	}
 
 	const handleInitialAuth = async () => {
@@ -56,7 +58,6 @@ const Login = () => {
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
 				})
-				console.log('response', response?.data?.data?.token)
 				dispatch(setLoggedUser({
 					token: response?.data?.data?.token,
 					isLogged: isTokenActivated(response?.data?.data?.token),
@@ -80,8 +81,7 @@ const Login = () => {
 		e.preventDefault()
 		let error = {}
 		Object.keys({ email: formData.email, password: formData.password }).forEach((val) => {
-			const newVal = val !== 'phone' ? formData[val] : `${formData.countryCode}${formData[val]}`
-			const message = validation(val, newVal)
+			const message = loginValidation(val, formData[val])
 			if (message) {
 				error[val] = message
 			}
@@ -105,20 +105,20 @@ const Login = () => {
 						}}
 					/>
 					<Form className="mt-8" handleSubmit={handleSubmit}>
-						<FieldGroup label="Email" className="mb-4">
+						<FieldGroup errorClass='text-sm text-red' error={error['email']} label="Email" className="mb-4">
 							<Input
 								{...{
 									name: 'email',
 									value: formData.email,
 									type: 'email',
-									placeholder: 'darlenerobertson@gmail.com',
+									placeholder: 'Enter your email',
 									onChange: handleChange,
 									className: 'sm:min-w-full',
 									error: error['email']
 								}}
 							/>
 						</FieldGroup>
-						<FieldGroup label="Password" className="mb-4">
+						<FieldGroup errorClass='text-sm text-red' error={error['password']} label="Password" className="mb-4">
 							<Input
 								{...{
 									name: 'password',
@@ -137,7 +137,7 @@ const Login = () => {
 						<Button
 							btnClass="w-full mt-[48px]"
 							type="submit"
-							label={loading ? 'Please wait' : 'Send OTP'}
+							label={loading ? 'Please wait' : 'Login'}
 							size="large"
 							disabled={loading}
 							apperianceType="primary"

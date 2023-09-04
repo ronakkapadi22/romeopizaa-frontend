@@ -1,0 +1,19 @@
+{
+    "amount": 2300,
+    "currency": "usd",
+    "items": [
+        {
+            "productId": 33,
+            "quantity": 1
+        },
+        {
+            "productId": 3,
+            "quantity": 2
+        }
+    ],
+    "receipe_email": "test@yopmail.com",
+    "shipping": {
+        "name": "Test User",
+        "address": "Address line"
+    }
+}

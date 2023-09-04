@@ -43,15 +43,30 @@ import { ReactComponent as ProfileIcon } from '../assets/images/profile.svg'
 import { ReactComponent as Show } from '../assets/icons/eye.svg'
 import { ReactComponent as Hide } from '../assets/icons/eye-close.svg'
 import { ReactComponent as Trash } from '../assets/icons/trash.svg'
+import { ReactComponent as HeartFill } from '../assets/icons/like-fill.svg'
+import { ReactComponent as EmptyCart } from '../assets/images/empty-cart.svg'
+import { ReactComponent as Loading } from '../assets/images/loading.svg'
+import { ReactComponent as Check } from '../assets/icons/check.svg'
+import { ReactComponent as Warning } from '../assets/icons/warning.svg'
 
 const Icons = ({ id, ...props }) => {
 	switch (id) {
 		case 'logo':
 			return <Logo {...props} />
+		case 'empty-cart':
+			return <EmptyCart {...props} />
+		case 'check-right':
+			return <Check {...props} />
 		case 'trash':
 			return <Trash {...props} />
+		case 'warning':
+			return <Warning {...props} />
+		case 'loading':
+			return <Loading {...props} />
 		case 'heart-outline':
 			return <HeartOutline {...props} />
+		case 'heart-filled':
+			return <HeartFill {...props} />
 		case 'search':
 			return <Search {...props} />
 		case 'logo-icon':

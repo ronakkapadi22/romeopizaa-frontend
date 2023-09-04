@@ -4,19 +4,24 @@ import { classNames } from '../utils/helper'
 import useHistory from '../hooks/useHistory'
 import { useLocation, useParams } from 'react-router-dom'
 
-const Breadcrump = ({ ...props }) => {
+const Breadcrump = ({ data, ...props }) => {
 	const path = useLocation()
 	const { id } = useParams()
 	const history = useHistory()
 	const pathSliceData = path.pathname.split('/').filter((val) => !!val)
-	const pathSlice = pathSliceData.filter(val => val !== id)
+	const pathSlice = ['Home', ...pathSliceData.filter(val => val !== id)]
 
 	const handleClick = (index) => {
+		if(index === 0) return history('/')
 		if (index + 1 !== pathSlice.length) {
 			const path = [pathSlice[index - 1], pathSlice[index]]?.join('/')
-			history(`${index === 0 ? '' : '/'}${path}`)
+			if(data){
+				history(`${index === 0 ? '/' : '/'}${path.replace('Home/', '')}/${data}`)
+			}else history(`${index === 0 ? '/' : '/'}${path.replace('Home/', '')}`)
 		}
 	}
+
+	console.log('pathSlice', data)
 
 	return (
 		<div className="flex" {...props}>
@@ -27,7 +32,7 @@ const Breadcrump = ({ ...props }) => {
 							<p
 								onClick={() => handleClick(index)}
 								className={classNames(
-									'text-lg capitalize',
+									'text-lg capitalize', index === 0 ? 'cursor-pointer text-black' : '',
 									index + 1 !== pathSlice.length
 										? 'text-gray1 cursor-pointer'
 										: 'text-black'

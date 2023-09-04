@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Heading from '../../shared/heading/Heading'
 import Icons from '../../shared/Icons'
 import Form from '../../shared/forms/Form'
@@ -7,6 +7,9 @@ import FieldGroup from '../../shared/forms/FieldGroup'
 import { validation } from '../../utils/validation'
 import Button from '../../shared/Buttons/Button'
 import { cardFormatter, expDateFormatter } from '../../utils/helper'
+import CountrySelector from '../../shared/coutry-selector'
+import { useDispatch, useSelector } from 'react-redux'
+import { addCard } from '../../redux/action'
 
 const initialState = {
 	first_name: '',
@@ -20,7 +23,13 @@ const initialState = {
 
 const CardDetails = ({ handleClose }) => {
 	const [formData, setFormData] = useState(initialState)
+	const cardDetail = useSelector(({card}) => card)
+	const dispatch = useDispatch()
 	const [error, setError] = useState({})
+	const [phoneData, setPhoneData] = useState({
+		countryCode: '+44',
+		country: 'gb'
+	})
 
 	const formatter = (name, value) => {
 		if (name === 'card_number') return cardFormatter(value)
@@ -33,17 +42,28 @@ const CardDetails = ({ handleClose }) => {
 
 	const handleChange = (e) => {
 		const { name, value } = e.target
+		const newVal = name !== 'phone' ? formatter(name, value) : `${phoneData.countryCode}${value}` 
 		setFormData({
 			...formData,
 			[name]: formatter(name, value)
 		})
 		setError({
 			...error,
-			[name]: validation(name, formatter(name, value))
+			[name]: validation(name, formatter(name, newVal))
 		})
 	}
 
-	console.log('formData', formData)
+	const handleCoutryCode = (value) => {
+        setPhoneData({
+            ...phoneData,
+            countryCode: value?.code
+        })
+        setError({
+            ...error, 'phone': validation('phone', `${value?.code}${formData.phone}`)
+        })
+    }
+
+	console.log('cardDetail', cardDetail)
 
 	const cardData = [
 		{
@@ -133,6 +153,35 @@ const CardDetails = ({ handleClose }) => {
 		}
 	]
 
+	useEffect(() => {
+		// eslint-disable-next-line no-unused-vars
+		const { isUpdated, ...data } = cardDetail
+		isUpdated && setFormData({...data})
+	}, [dispatch, cardDetail])
+
+	const handleSubmit = (e) => {
+		e.preventDefault()
+		let error = {}
+		console.log('formData', formData)
+		Object.keys(formData).forEach(val => {
+			const newVal = val !== 'phone' ? formData[val] : `${phoneData.countryCode}${formData[val]}`
+			const message = validation(val, formatter(val, newVal))
+			console.log('message', message)
+			if (message) {
+				error[val] = message
+			}
+		})
+		console.log('error', error)
+		if(Object.keys(error).length){
+			setError(error)
+			return
+		}
+
+		dispatch(addCard({...formData, isUpdated: !!formData.card_number}))
+		handleClose('payment')
+
+	}
+
 	return (
 		<div className='className="relative w-[96%] md:w-[678px] lg:w-[845px] p-8 mx-auto rounded-lg bg-white'>
 			<div className="w-full flex justify-between items-center">
@@ -143,18 +192,27 @@ const CardDetails = ({ handleClose }) => {
 				/>
 				<Icons id="close" className="cursor-pointer" onClick={() => handleClose('payment')} />
 			</div>
-			<Form className="grid gap-6 grid-cols-12 mt-4">
+			<Form handleSubmit={handleSubmit} className="grid gap-6 grid-cols-12 mt-4">
 				{cardData?.map(
 					({ id, className, isHideError, isHideLabel, ...other }) => (
 						<FieldGroup key={id} {...{ isHideError, isHideLabel, className }}>
-							<Input className="!min-w-full" {...other} />
+							{id === 'phone' ? <div className="w-full flex items-center">
+                                <CountrySelector
+                                    {...{
+                                        handleChange: handleCoutryCode,
+                                        defaultValue: { coutry: phoneData.country, code: phoneData.countryCode }
+                                    }}
+                                    className="w-[100px] mr-2"
+                                />
+                                <Input className="!min-w-full" inputClass="!w-full" {...other} />
+                            </div> : <Input className="!min-w-full" {...other} />}
 						</FieldGroup>
 					)
 				)}
 				<Button
 					btnClass="w-full mt-[34px] col-span-12"
 					type="submit"
-					label="Pay Now"
+					label={cardDetail?.isUpdated ? 'Update' : 'Submit'}
 					size="large"
 					apperianceType="primary"
 				/>

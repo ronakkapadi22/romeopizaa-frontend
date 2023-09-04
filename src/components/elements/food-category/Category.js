@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import Carousel from 'react-multi-carousel'
 import 'react-multi-carousel/lib/styles.css'
-import { classNames } from '../../../utils/helper'
+import { classNames, handleScrollToElement } from '../../../utils/helper'
 import Icons from '../../../shared/Icons'
-import { useNavigate} from 'react-router-dom'
 import Heading from '../../../shared/heading/Heading'
+import useHistory from '../../../hooks/useHistory'
 
 const CustomRightArrow = ({ onClick, ...rest }) => {
 	return (
@@ -31,13 +31,14 @@ const CustomLeftArrow = ({ onClick, ...rest }) => {
 }
 
 
-const Category = ({ className, isSmall, categories, ...props }) => {
+const Category = ({ className, isSmall, isRedirect, categories, ...props }) => {
 
-	const navigate = useNavigate()
+	const history = useHistory()
 
-	const handleCategoryClick = useCallback((id)=> ()=>{
-		navigate(`/products/${id}`)
-	}, [])
+	const handleRedirect = ({id, name}) => {
+		handleScrollToElement(String(name).toLowerCase())
+		isRedirect && history(`/products/${id}`)
+	}
 	
 	return (
 		<div {...props} className={classNames('py-9 w-full', className)}>
@@ -115,7 +116,7 @@ const Category = ({ className, isSmall, categories, ...props }) => {
 				{categories?.map(({ id, name }) => (
 					<div
 						key={id}
-						onClick={handleCategoryClick(id)}
+						onClick={() => handleRedirect({id, name})}
 						className="my-6 cursor-pointer flex justify-center items-center flex-col"
 					>
 						<div className="w-[90px] sm:w-[102px] h-[90px] sm:h-[102px] rounded-[50%] bg-cultured1 flex items-center justify-center">

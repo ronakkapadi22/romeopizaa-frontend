@@ -4,21 +4,22 @@ import Form from '../shared/forms/Form'
 import FieldGroup from '../shared/forms/FieldGroup'
 import Input from '../shared/forms/Input'
 import CountrySelector from '../shared/coutry-selector'
-import { validation } from '../utils/validation'
+import { registerValidation } from '../utils/validation'
 import Button from '../shared/Buttons/Button'
 import useHistory from '../hooks/useHistory'
 import { sendOtpWithRegister } from '../api/api'
 import { useDispatch } from 'react-redux'
 import { handlePhoneNumber, setAuthKey, setupAuthData } from '../redux/action'
-import { maskedVal } from '../utils/helper'
 import { enqueueSnackbar } from 'notistack'
 
 const initialState = {
-    country: 'in',
-    countryCode: '+91',
+    country: 'gb',
+    countryCode: '+44',
     email: '',
     phoneNumber: '',
-    password: ''
+    password: '',
+    fName: '',
+    lName: ''
 
 }
 
@@ -45,62 +46,65 @@ const Registration = ({ ...props }) => {
             countryCode: value?.code
         })
         setError({
-            ...error, 'phoneNumber': validation('phoneNumber', `${value?.code}${registration.phoneNumber}`)
+            ...error, 'phoneNumber': registerValidation('phoneNumber', `${value?.code}${registration.phoneNumber}`)
         })
     }
 
-    const handleRegister = async() => {
+    const handleRegister = async () => {
         setLoading(true)
         try {
             const response = await sendOtpWithRegister(registration)
             if (response?.data) {
-				setLoading(false)
-				dispatch(
-					handlePhoneNumber({
-						value: `${registration.countryCode}${registration.phoneNumber}`,
-						masked: maskedVal(`${registration.countryCode}${registration.phoneNumber}`),
-						phoneNumber: registration.phoneNumber
-					})
-				)
-				enqueueSnackbar(response?.data?.message, {
-					variant: 'success'
-				})
+                setLoading(false)
+                dispatch(
+                    handlePhoneNumber({
+                        value: `${registration?.countryCode}${registration?.phoneNumber}`,
+                        masked: registration?.email,
+                        phoneNumber: registration?.phoneNumber
+                    })
+                )
+                enqueueSnackbar(response?.data?.message, {
+                    variant: 'success'
+                })
                 dispatch(setupAuthData({
                     otp: response?.data?.data?.otp || '',
                     countryCode: registration.countryCode,
                     email: registration.email,
                     password: registration.password,
-                    phoneNumber: registration.phoneNumber
+                    phoneNumber: registration.phoneNumber,
+                    fName: registration.fName,
+                    lName: registration.lName
 
                 }))
-				dispatch(setAuthKey('otp_page'))
-			}
+                dispatch(setAuthKey('otp_page'))
+            }
         } catch (error) {
             setLoading(false)
-			if (error?.response?.data) {
-				enqueueSnackbar(error?.response?.data?.data?.['phoneNumber']?.[0], {
-					variant: 'error'
-				})
-			}
-			console.log('error', error?.response?.data)
-			return error
+            if (error?.response?.data) {
+                enqueueSnackbar(error?.response?.data?.data?.['phoneNumber']?.[0] || error?.response?.data?.data?.['email']?.[0], {
+                    variant: 'error'
+                })
+            }
+            return error
         }
     }
+
+    console.log('error', error)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         let error = {}
-		Object.keys({ phoneNumber: registration.phoneNumber, email: registration.email, password: registration.password }).forEach((val) => {
-			const newVal = val !== 'phoneNumber' ? registration[val] : `${registration.countryCode}${registration[val]}`
-			const message = validation(val, newVal)
-			if (message) {
-				error[val] = message
-			}
-		})
-		if (Object.keys(error).length) {
-			setError({ ...error, ...error })
-			return
-		}
+        Object.keys({ phoneNumber: registration.phoneNumber, email: registration.email, password: registration.password, lName: registration.lName, fName: registration.fName }).forEach((val) => {
+            const newVal = val !== 'phoneNumber' ? registration[val] : `${registration.countryCode}${registration[val]}`
+            const message = registerValidation(val, newVal, { phone: registration.phoneNumber })
+            if (message) {
+                error[val] = message
+            }
+        })
+        if (Object.keys(error).length) {
+            setError({ ...error, ...error })
+            return
+        }
 
         await handleRegister()
     }
@@ -109,14 +113,12 @@ const Registration = ({ ...props }) => {
         const { name, value } = e.target
         const newVal = name !== 'phoneNumber' ? value : `${registration.countryCode}${value}`
         setRegistration({
-            ...registration, [name]: value
+            ...registration, [name]: name !== 'phoneNumber' ? value : value?.length > 11 ? registration.phoneNumber : value
         })
         setError({
-            ...error, [name]: validation(name, newVal)
+            ...error, [name]: registerValidation(name, newVal, { phone: registration.phoneNumber })
         })
     }
-
-    console.log('registration', registration)
 
     return (
         <div {...props} className="relative w-full px-4 sm:px-[80px] h-[calc(100vh-92px)] flex items-center justify-center">
@@ -130,20 +132,48 @@ const Registration = ({ ...props }) => {
                         }}
                     />
                     <Form className="mt-8" handleSubmit={handleSubmit}>
-                        <FieldGroup label="Email" className="mb-4">
+                        <div className='flex flex-col md:flex-row items-center justify-between w-full' >
+                            <FieldGroup className='md:mr-2 mb-4 w-full' errorClass='text-sm text-red' error={error['fName']} label="First Name">
+                                <Input inputClass='w-full'
+                                    {...{
+                                        name: 'fName',
+                                        value: registration.fName,
+                                        type: 'text',
+                                        placeholder: 'Enter First Name',
+                                        onChange: handleChange,
+                                        className: 'sm:min-w-full',
+                                        error: error['fName']
+                                    }}
+                                />
+                            </FieldGroup>
+                            <FieldGroup className='md:ml-2 mb-4 w-full' errorClass='text-sm text-red' error={error['lName']} label="Last Name">
+                                <Input
+                                    {...{
+                                        name: 'lName',
+                                        value: registration.lName,
+                                        type: 'text',
+                                        placeholder: 'Enter Last Name',
+                                        onChange: handleChange,
+                                        className: 'sm:min-w-full',
+                                        error: error['lName']
+                                    }}
+                                />
+                            </FieldGroup>
+                        </div>
+                        <FieldGroup errorClass='text-sm text-red' error={error['email']} label="Email" className="mb-4">
                             <Input
                                 {...{
                                     name: 'email',
                                     value: registration.email,
                                     type: 'email',
-                                    placeholder: 'darlenerobertson@gmail.com',
+                                    placeholder: 'Enter your email',
                                     onChange: handleChange,
                                     className: 'sm:min-w-full',
                                     error: error['email']
                                 }}
                             />
                         </FieldGroup>
-                        <FieldGroup className='mb-4' label="Phone Number">
+                        <FieldGroup errorClass='text-sm text-red' error={error['phoneNumber']} className='mb-4' label="Phone Number">
                             <div className="w-full flex items-center">
                                 <CountrySelector
                                     {...{
@@ -155,6 +185,7 @@ const Registration = ({ ...props }) => {
                                 <Input
                                     className="sm:!min-w-[290px]"
                                     type="number"
+                                    inputClass='w-full'
                                     placeholder="Enter Phone Number"
                                     name="phoneNumber"
                                     value={registration.phoneNumber}
@@ -163,7 +194,7 @@ const Registration = ({ ...props }) => {
                                 />
                             </div>
                         </FieldGroup>
-                        <FieldGroup label="Password" className="mb-4">
+                        <FieldGroup errorClass='text-sm text-red' error={error['password']} label="Password" className="mb-4">
                             <Input
                                 {...{
                                     name: 'password',

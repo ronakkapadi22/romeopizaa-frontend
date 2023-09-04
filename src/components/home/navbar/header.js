@@ -13,13 +13,13 @@ import CartDrawer from '../../elements/drawer/cart-drawer'
 
 const Header = ({ ...props }) => {
 	const auth = useSelector(({ auth }) => auth)
+	const cartItems = useSelector(({ order }) => order?.cartItems)
 	const history = useHistory()
 	const [toggle, setToggle] = useToggle(false)
 	const [isOpen, setIsOpen] = useToggle(false)
 
 	const handleToggle = () => setToggle((prev) => !prev)
 	const handleCartToggle = () => setIsOpen((prev) => !prev)
-
 	const handleNavigate = (path = '/') => history(path)
 
 	return (
@@ -47,9 +47,9 @@ const Header = ({ ...props }) => {
 			<div className="flex items-center">
 				<Label
 					className="bg-black px-3 py-2 rounded-3xl flex text-white cursor-pointer"
-					iconClass="text-white"
+					iconClass="text-white mr-1"
 					onClick={handleCartToggle}
-					label={10}
+					label={cartItems?.length ? `Basket ${cartItems?.length}` : 'Basket 0'}
 					isShowIcon
 					icon="cart"
 				/>
@@ -71,7 +71,7 @@ const Header = ({ ...props }) => {
 					<Icons className="w-[20px] h-[20px]" id="menu" />
 				</IconButton>
 			</div>
-			<CustomPortal
+			{toggle ? <CustomPortal
 				className="flex w-[380px] lg:w-96"
 				{...{
 					toggle,
@@ -80,10 +80,10 @@ const Header = ({ ...props }) => {
 				}}
 			>
 				<AuthDrawer {...{ auth, handleToggle }} />
-			</CustomPortal>
+			</CustomPortal>: null}
 
 			{/* cart drawer */}
-			<CustomPortal
+			{isOpen ? <CustomPortal
 				className="flex w-full sm:w-[480px] lg:w-[596px]"
 				{...{
 					toggle: isOpen,
@@ -92,7 +92,7 @@ const Header = ({ ...props }) => {
 				}}
 			>
 				<CartDrawer {...{ handleToggle: handleCartToggle }} />
-			</CustomPortal>
+			</CustomPortal> : null}
 		</section>
 	)
 }

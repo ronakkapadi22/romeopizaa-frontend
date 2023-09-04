@@ -11,21 +11,25 @@ const CountrySelector = ({
 }) => {
 	const [config, setConfig] = useState({
 		coutries: [],
-		currentFlag: String(defaultValue.coutry)?.toLocaleLowerCase(),
+		currentFlag: '',
 		value: defaultValue.code,
 		loading: false,
 		isSkip: false
 	})
+
 
 	const getCoutryCode = async () => {
 		setConfig({ ...config, loading: true })
 		try {
 			const response = await coutryResponse()
 			if (response) {
+				const flag = coutryCodeFormatter(response).find((val) => val.code === defaultValue.code && val.coutry === defaultValue.coutry)
+				console.log('flag', flag)
 				setConfig({
 					...config,
+					value: defaultValue?.code,
 					coutries: coutryCodeFormatter(response),
-					currentFlag: coutryCodeFormatter(response).find((val) => val.code === defaultValue.code),
+					currentFlag: flag?.coutry,
 					loading: false,
 					isSkip: true
 				})
@@ -41,9 +45,10 @@ const CountrySelector = ({
 
 	const handleCoutryChange = (value) => {
 		const { code, coutry } = value
+		console.log('country', coutry)
 		setConfig({
 			...config,
-			currentFlag: {coutry},
+			currentFlag: coutry,
 			value: code
 		})
 		handleChange && handleChange(value)
@@ -51,7 +56,8 @@ const CountrySelector = ({
 
 	useEffect(() => {
 		!config.isSkip && getCoutryCode()
-	}, [config.isSkip])
+	}, [config.isSkip, defaultValue])
+
 
 	return (
 		<Menu
@@ -62,7 +68,7 @@ const CountrySelector = ({
 			<Menu.Button className="flex justify-center items-center w-full py-[13px] px-3 bg-cultured1 rounded-lg">
 				<div className="flex justify-between items-center mr-2">
 					<img
-						src={`https://flagcdn.com/${config?.currentFlag?.coutry}.svg`}
+						src={`https://flagcdn.com/${config?.currentFlag}.svg`}
 						className="w-6 mr-1"
 						alt="flag"
 					/>
