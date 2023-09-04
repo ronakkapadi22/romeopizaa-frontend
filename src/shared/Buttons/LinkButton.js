@@ -1,10 +1,8 @@
 import React from 'react'
 
-const LinkButton = ({ onClick, label, ...props }) => {
+const LinkButton = ({ label, ...props }) => {
 	return (
-		<p onClick={onClick && onClick()} {...props}>
-			{label}
-		</p>
+		<p {...props}>{label}</p>
 	)
 }
 

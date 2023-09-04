@@ -19,6 +19,13 @@ export const retry = (fetchComponent, retriesLeft = 5, interval = 1000) => {
 	})
 }
 
+export const handleScrollToElement = (id) => {
+	const element = document.getElementById(id)
+	if (element) {
+		element.scrollIntoView({ behavior: 'smooth' })
+	}
+}
+
 export const isFunction = (fn) => fn === 'function'
 
 export const METHODS = {
@@ -92,25 +99,6 @@ export const timing = [
 	}
 ]
 
-export const recent = [
-	{
-		id: 1,
-		result: 'Classic Veg Burger'
-	},
-	{
-		id: 2,
-		result: 'Double Cheese Margherita '
-	},
-	{
-		id: 3,
-		result: 'Stuffed Chicken Roast'
-	},
-	{
-		id: 4,
-		result: 'French Fries Piri Piri'
-	}
-]
-
 export const popular_food = [
 	{
 		id: 1,
@@ -169,7 +157,7 @@ export const nav_menu = [
 	},
 	{
 		id: 3,
-		name: 'Cart',
+		name: 'Basket',
 		icon: 'text-fill',
 		path: '/cart'
 	}
@@ -184,10 +172,10 @@ export const maskedVal = (value = '') => {
 	return [...masked, ...unmasked].join('')
 }
 
-export const handleLogout = async() => {
-		clearDataFromLocal()
-		store.dispatch(setLogOutUser({}))
-		store.dispatch(handleInitialAuthStep({}))
+export const handleLogout = async () => {
+	clearDataFromLocal()
+	store.dispatch(setLogOutUser({}))
+	store.dispatch(handleInitialAuthStep({}))
 }
 
 export const range = (start, end) => {
@@ -226,9 +214,8 @@ export const cardFormatter = (value) => {
 
 const handleCode = (data = {}) => {
 	if (!data) return {}
-	return `${data?.root}${
-		data?.suffixes?.length > 1 ? '' : data?.suffixes?.[0] || ''
-	}`
+	return `${data?.root}${data?.suffixes?.length > 1 ? '' : data?.suffixes?.[0] || ''
+		}`
 }
 
 export const coutryCodeFormatter = (data = []) => {
@@ -247,10 +234,23 @@ export const coutryCodeFormatter = (data = []) => {
 
 export const groupBy = (array, key) => {
 	let grouped = array.reduce((accum, data) => {
-	 if (data[key] === undefined) return accum
-	 return Object.assign(accum, {
-	  [data[key]]: (accum[data[key]] || []).concat(data)
-	 })
+		if (data[key] === undefined) return accum
+		return Object.assign(accum, {
+			[data[key]]: (accum[data[key]] || []).concat(data)
+		})
 	}, {})
 	return grouped
-   }
+}
+
+export const findDataInArray = (mainArray = [], target = []) => {
+	if(!mainArray.length && target?.length) return []
+	if(!target.length && mainArray.length) return mainArray
+	const cloneArray = []
+	mainArray.forEach(val => {
+		const value = target.find(data => data?.orderId === String(val?.id))
+		cloneArray.push({
+			...val, ...value
+		})
+	})
+	return cloneArray
+}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../../../shared/Buttons/Button'
 import Label from '../../../shared/labels/label'
 import Heading from '../../../shared/heading/Heading'
@@ -6,39 +6,68 @@ import Icons from '../../../shared/Icons'
 // import profile from '../../../assets/images/profile.png'
 import { handleLogout, nav_menu } from '../../../utils/helper'
 import useHistory from '../../../hooks/useHistory'
+import { getProfileDetails } from '../../../api/api'
+import { enqueueSnackbar } from 'notistack'
 
 const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 	const history = useHistory()
-	console.log('auth', auth.user)
-
 	const handleNavigate = (path = '/') => history(path)
-
+	const [profile, setProfile] = useState(null)
+	const [account, setAccount] = useState({})
+	
 	const handleLogOutUser = () => {
 		handleLogout()
 		handleToggle()
 		history('/')
 	}
 
+	const getProfileData = async () => {
+		try {
+			const response = await getProfileDetails({})
+			if (response?.data) {
+				const { data } = response?.data
+				setAccount({
+					...account, name: data?.fullname?.trim(),
+					code: String(data?.countryCode).includes('+') ? data?.countryCode  : '+' + data?.countryCode,
+					contact: data?.phoneNumber,
+					email: data?.email,
+					fName: data?.fName,
+					lName: data?.lName
+				})
+				setProfile(data?.profilepath || '')
+			}
+		} catch (error) {
+			enqueueSnackbar(error?.response?.message || 'Somthing went wrong', {
+				variant: 'error'
+			})
+			return error
+		}
+	}
+
+	useEffect(() => {
+		auth?.isLogged && getProfileData()
+	}, [])
+
 	const handleProvider = (isLogged) => {
 		if (isLogged) {
 			return (
 				<>
 					<div className="flex items-center">
-						<div className="rounded-full w-[76px] h-[76px]">
+						{!profile ? <div className="rounded-full w-[76px] h-[76px]">
 							<Icons id="profile-icon" />
-						</div>
-						{/* <img
-					alt="profile"
-					src={profile}
-					className="rounded-full w-[76px] h-[76px]"
-				/> */}
+						</div> :
+						<img
+							alt="profile"
+							src={profile}
+							className="rounded-full w-[76px] h-[76px]"
+						/>}
 						<div className="flex flex-col ml-6">
 							<Heading
 								tag="head_6"
 								headClass="text-black text-lg font-medium"
-								text={auth.user?.fullname || ''}
+								text={account?.fName || '' + ' ' + account.lName || ''}
 							/>
-							<p className="text-gray2 text-base">{auth.user.phoneNumber}</p>
+							<p className="text-gray2 text-base">{account?.code + account?.contact}</p>
 						</div>
 					</div>
 					<div className="mt-16 mb-24">

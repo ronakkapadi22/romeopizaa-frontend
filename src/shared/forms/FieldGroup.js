@@ -6,6 +6,7 @@ const FieldGroup = ({
 	label,
 	isHideLabel,
 	isHideError,
+	errorClass,
 	...props
 }) => {
 	return (
@@ -14,7 +15,7 @@ const FieldGroup = ({
 				<p className="text-black font-medium text-base mb-1">{label}</p>
 			) : null}
 			{children}
-			{!isHideError ? <p>{error}</p> : null}
+			{!isHideError ? <p className={errorClass} >{error}</p> : null}
 		</div>
 	)
 }

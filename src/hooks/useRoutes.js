@@ -6,7 +6,6 @@ import { Navigate } from 'react-router-dom'
 import withAuth from '../hoc/withAuth'
 import withPublic from '../hoc/withFreeAccess'
 import ProductDetails from '../pages/product-details'
-
 const AuthProvider = lazy(() => retry(() => import('../pages/register')))
 const LoginProvider = lazy(() => retry(() => import('../pages/login')))
 
@@ -23,11 +22,12 @@ const OrderDetail = lazy(() => retry(() => import('../pages/order-detail')))
 
 const useRoutes = () => {
 	const authKey = useSelector(({ authSteps }) => authSteps?.authKey)
+	const cartItems = useSelector(({ order }) => order?.cartItems)
 
 	const WithUser = {
 		Orders: withUser(OrdersList, Navigate),
 		Profile: withUser(ProfilePage, Navigate),
-		Cart: withUser(Cart, Navigate),
+		Cart: Cart,
 		Order: withUser(OrderDetail, Navigate)
 	}
 
@@ -107,20 +107,20 @@ const useRoutes = () => {
 			id: 'cart',
 			path: '/cart',
 			name: 'Cart',
+			isPublic: true,
 			element: (
 				<WithUser.Cart
 					className="mx-1 my-8 md:m-0 bg-cultured"
 					replace
-					{...{ to: '/', title: 'Cart' }}
+					{...{ to: '/', title: 'Cart', isEmpty: cartItems?.length || 0  }}
 				/>
 			),
-			isPrivate: true,
 			onlyRender: true,
 			exact: true
 		},
 		{
 			id: 'order',
-			path: '/orders/details',
+			path: '/orders/details/:id',
 			name: 'Order',
 			element: <WithUser.Order replace {...{ to: '/', title: 'Order Details' }} />,
 			isPrivate: true,

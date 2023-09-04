@@ -44,35 +44,33 @@ const CustomPortal = ({
 
 	return (
 		<Portal>
-			{toggle ? (
-				<Fragment>
+			<Fragment>
+				<div
+					{...props}
+					className="fixed top-0 left-0 z-30 w-screen h-screen bg-black opacity-50"
+				/>
+				<div className="fixed top-0 left-0 z-40 w-full h-full m-0 overflow-hidden">
 					<div
-						{...props}
-						className="fixed top-0 left-0 z-30 w-screen h-screen bg-black opacity-50"
-					/>
-					<div className="fixed top-0 left-0 z-40 w-full h-full m-0 overflow-hidden">
+						aria-modal={true}
+						role="dialogue"
+						className={classNames(
+							'h-full right-0 mx-0 my-0 absolute focus:outline-none',
+							className
+						)}
+						tabIndex={-1}
+						ref={ref}
+					>
 						<div
-							aria-modal={true}
-							role="dialogue"
 							className={classNames(
-								'h-full right-0 mx-0 my-0 absolute focus:outline-none',
-								className
+								'relative flex flex-col w-full pointer-events-auto',
+								animation
 							)}
-							tabIndex={-1}
-							ref={ref}
 						>
-							<div
-								className={classNames(
-									'relative flex flex-col w-full pointer-events-auto',
-									animation
-								)}
-							>
-								{children}
-							</div>
+							{children}
 						</div>
 					</div>
-				</Fragment>
-			) : null}
+				</div>
+			</Fragment>
 		</Portal>
 	)
 }

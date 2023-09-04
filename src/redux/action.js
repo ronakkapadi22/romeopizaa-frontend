@@ -49,6 +49,13 @@ export const setStoreData = (payload = {}) => {
 	}
 }
 
+export const fetchAllStores = (payload = []) => {
+	return {
+		type: constant.STORES,
+		payload
+	}
+}
+
 export const handleInitialAuthStep = (payload = {}) => {
 	return {
 		type: constant.INITIAL,
@@ -87,6 +94,83 @@ export const isEditAddress = (payload) => {
 export const currentAddress = (payload) => {
 	return {
 		type: constant.CURRENT_ADDRESS,
+		payload
+	}
+}
+
+export const addOrderDetail = (payload) => {
+	return {
+		type: constant.ADD_ORDER,
+		payload
+	}
+}
+
+export const addWish = (payload = {}) => {
+	return {
+		type: constant.ADD_WISHLIST,
+		payload
+	}
+}
+
+// Cart Item
+
+export const addItemInCart = (payload = {}) => {
+	return {
+		type: constant.ADD_CART_ITEM,
+		payload
+	}
+}
+
+export const updateItemInCart = (payload = {}) => {
+	return {
+		type: constant.UPDATE_CART_ITEM,
+		payload
+	}
+}
+
+export const removeItemInCart = (id) => {
+	return {
+		type: constant.REMOVE_CART_ITEM,
+		payload : id
+	}
+}
+
+export const clearCartItems = () => {
+	return {
+		type: constant.CLEAR_CART
+	}
+}
+
+export const addCard = (payload) => {
+	return {
+		type: constant.ADD_CARD,
+		payload
+	}
+}
+
+export const addRecentItem = (payload) => {
+	return {
+		type: constant.ADD_RECENT_SEARCH,
+		payload
+	}
+}
+
+export const deleteCard = () => {
+	return {
+		type: constant.DELETE_CARD
+	}
+}
+
+export const setStoreConfig = (payload) => {
+	return {
+		type: constant.SET_STORE,
+		payload
+	}
+}
+
+export const cancelOrder = (payload) => {
+	return {
+		type: constant.CANCEL_ORDER,
 		payload
 	}
 }

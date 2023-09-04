@@ -2,20 +2,24 @@ import React, { useEffect, useState } from 'react'
 import Category from '../components/elements/food-category/Category'
 import FoodList from '../components/elements/food-list/FoodList'
 import Banner from '../components/home/banner/Banner'
-import StoreList from '../components/elements/store-list/StoreList'
+// import StoreList from '../components/elements/store-list/StoreList'
 import { categoryList, fetchProductData } from '../api/api'
 import { enqueueSnackbar } from 'notistack'
 import { groupBy } from '../utils/helper'
+import { useDispatch, useSelector } from 'react-redux'
+import { addOrderDetail } from '../redux/action'
 
 const HomePage = ({ ...props }) => {
+	
+	const dispatch = useDispatch()
+	const storeConfig = useSelector(({storeConfig}) => storeConfig)
 	const [category, setCategory] = useState([])
 	const [productList, setProductList] = useState({})
 
 	const fetchProductList = async () => {
 		try {
 			const param = {
-				storeId: 1,
-				catId1: 1
+				storeId: storeConfig.storeId
 			}
 			const response = await fetchProductData(param)
 			if (response.data?.data?.data) {
@@ -23,28 +27,22 @@ const HomePage = ({ ...props }) => {
 			}
 
 		} catch (error) {
-			enqueueSnackbar(error?.response?.data?.message || 'somthing went wrong.', {
-				variant: 'error'
-			})
+			setProductList({})
 			return error
 		}
 
 	}
 
-
 	const fetchCategoryList = async () => {
-		const param = {
-			storeId: 0,
-			catId1: 0
-		}
 		try {
-			const response = await categoryList(param)
+			const response = await categoryList({})
 			if (response.data?.data) {
-
-				fetchProductList()
 				setCategory(response.data?.data)
+				window.scrollTo(0, 0)
 			}
 		} catch (error) {
+			console.log('error', error)
+			setCategory([])
 			enqueueSnackbar(error?.response?.data?.message || 'somthing went wrong.', {
 				variant: 'error'
 			})
@@ -54,7 +52,14 @@ const HomePage = ({ ...props }) => {
 
 	useEffect(() => {
 		fetchCategoryList()
+		fetchProductList()
+	}, [dispatch, storeConfig])
+
+	useEffect(() => {
+		dispatch(addOrderDetail({orderId : 1}))
 	}, [])
+
+	console.log('category', category, productList)
 
 	return (
 		<div {...props}>
@@ -63,11 +68,10 @@ const HomePage = ({ ...props }) => {
 				className="px-6 lg:px-[44px] xl:px-[80px]"
 				categories={category}
 			/>
-			<StoreList />
+			{/* <StoreList /> */}
 			{
-				Object.keys(productList).map((item) => {
-					return (<FoodList title={category?.find(val => String(val.id) === String(item))?.name || ''} key={item} {...{item}} productList={productList[item].slice(0, 4)} />)
-
+				category?.map(({id, name}) => {
+					return (<FoodList title={name} item={id} key={id} {...{id, name}} productList={productList[id]?.slice(0, 4)} />)
 				})
 			}
 

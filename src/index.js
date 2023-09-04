@@ -5,17 +5,20 @@ import { Provider } from 'react-redux'
 import './index.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import { store } from './store'
+import { persistor, store } from './store'
 import { SnackbarProvider } from 'notistack'
+import { PersistGate } from 'redux-persist/integration/react'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
 	<Provider store={store}>
-		<BrowserRouter>
-			<SnackbarProvider autoHideDuration={3000} >
-				<App />
-			</SnackbarProvider>
-		</BrowserRouter>
+		<PersistGate loading={null} persistor={persistor} >
+			<BrowserRouter>
+				<SnackbarProvider autoHideDuration={3000} >
+					<App />
+				</SnackbarProvider>
+			</BrowserRouter>
+		</PersistGate>
 	</Provider>
 )
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import useWindowSize from '../../../hooks/useWindow'
-import { classNames } from '../../../utils/helper'
+import { classNames, handleScrollToElement } from '../../../utils/helper'
 import bannerMobile from '../../../assets/images/banner-mobile.png'
 import banner from '../../../assets/images/banner.png'
 import Heading from '../../../shared/heading/Heading'
@@ -10,26 +10,20 @@ import { useSelector } from 'react-redux'
 const Banner = ({ ...props }) => {
 	const { width } = useWindowSize()
 	const store = useSelector(({store}) => store?.storeDetail)
-
-	const handleScrollToElement = () => {
-		const element = document.getElementById('table-booking')
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth' })
-		}
-	}
-
 	const bannerPath = store?.data?.bannerpath
-	const address = store?.data?.address
-	const city = store?.data?.city
-	const state = store?.data?.state
-	const country = store?.data?.country
-	const zip = store?.data?.zip
+	const address = store?.data?.address || ''
+	const city = store?.data?.city || ''
+	const state = store?.data?.state || ''
+	const country = store?.data?.country || ''
+	const zip = store?.data?.zip || ''
 
 	const handleBanner = () => {
 		if(width > 768){
 			return store?.data ? bannerPath : banner 
 		}else return store?.data ? bannerMobile : bannerMobile 
 	}
+
+	console.log('store', store)
  
 	return (
 		<div className={classNames('w-full relative')} {...props}>
@@ -46,7 +40,7 @@ const Banner = ({ ...props }) => {
 				/>
 				<p className={classNames("text-center md:text-left text-black my-[20px] lg:my-[26px]", store ? 'text-white' : 'text-black')}>
 					{
-						store ? `${address}, ${city}, ${state} ${zip}, ${country}` : "We Bring The Best Test in Our Dishes'. In All Burger Item of 2021 We Are Offering 20% Flat Discount. Don't miss Out!!"
+						store ? classNames(address, city, state, zip, country) : "We Bring The Best Test in Our Dishes'. In All Burger Item of 2021 We Are Offering 20% Flat Discount. Don't miss Out!!"
 					}
 				</p>
 				<Button
@@ -54,7 +48,7 @@ const Banner = ({ ...props }) => {
 					btnClass="px-8"
 					apperianceType="primary"
 					label="Make Reservation"
-					onClick={handleScrollToElement}
+					onClick={() => handleScrollToElement('table-booking')}
 				/>
 			</div>
 		</div>

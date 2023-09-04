@@ -23,7 +23,7 @@ const Security = ({ ...props }) => {
 	const handleChange = (e) => {
 		const { name, value } = e.target
 		setSecurity({ ...security, [name]: value })
-		setError({...error, [name]: validation(name, value)})
+		setError({...error, [name]: validation(name, value, security)})
 	}
 
 	const handleToggle = (name) => {
@@ -40,7 +40,7 @@ const Security = ({ ...props }) => {
 		try {
 			let error = {}
             Object.keys(security).forEach(val => {
-                const message = validation(val, security[val])
+                const message = validation(val, security[val], security)
                 if (message) { error[val] = message }
             })
             if (Object.keys(error).length) {
@@ -80,7 +80,7 @@ const Security = ({ ...props }) => {
 				className="mt-6 md:mt-12 w-full mb-6 md:mb-0"
 				handleSubmit={handleSubmit}
 			>
-				<FieldGroup label="Old Password" className="mb-4">
+				<FieldGroup errorClass='text-sm text-red' error={error['old_password']} label="Old Password" className="mb-4">
 					<Input
 						{...{
 							name: 'old_password',
@@ -96,7 +96,7 @@ const Security = ({ ...props }) => {
 						}}
 					/>
 				</FieldGroup>
-				<FieldGroup label="New Password" className="mb-4">
+				<FieldGroup errorClass='text-sm text-red' error={error['new_password']} label="New Password" className="mb-4">
 					<Input
 						{...{
 							name: 'new_password',
@@ -112,7 +112,7 @@ const Security = ({ ...props }) => {
 						}}
 					/>
 				</FieldGroup>
-				<FieldGroup label="Confirm Password" className="mb-4">
+				<FieldGroup errorClass='text-sm text-red' error={error['confirm_password']} label="Confirm Password" className="mb-4">
 					<Input
 						{...{
 							name: 'confirm_password',
