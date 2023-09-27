@@ -1,7 +1,7 @@
 import { constant } from "../constant"
 
 const initialState = {
-    storeId: 1
+    storeId: null
 }
 
 export const storeConfig = (state = initialState, action) => {

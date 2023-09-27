@@ -39,6 +39,8 @@ const SearchFood = ({ ...props }) => {
 
     const handleSearchFood = () => handleToggle(prev => !prev)
 
+    console.log('recentSearch', recentSearch)
+
     return (
         <div className="w-full py-8 sm:py-[54px] px-6 sm:px-16" {...props}>
             <div className="w-full lg:w-[920px] mx-auto">

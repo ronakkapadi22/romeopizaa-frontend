@@ -16,7 +16,7 @@ const OfferHeader = ({ className, ...props }) => {
 	const dispatch = useDispatch()
 	const history = useHistory()
 	const store = useSelector(({store}) => store?.storeDetail)
-	const storeConfig = useSelector(({storeConfig}) => storeConfig)
+	const storeConfig = useSelector(({ storeConfig }) => storeConfig)
 
 	const [storeData, setStore] = useState({})
 	const [toggle, setToggle] = useState({
@@ -26,20 +26,20 @@ const OfferHeader = ({ className, ...props }) => {
 
 	const handleToggle = (name, data = {}) => setToggle({ ...toggle, [name]: !toggle[name], ...data })
 
-
 	const selectConfigStore = (val) => {
 		if(val?.id === storeConfig?.storeId){
 			enqueueSnackbar('Already selected', {
 				variant: 'success'
 			})
+			handleToggle('stores')
 			return
 		}
-		handleToggle('warning', {warning: true, stores: false})
+		handleToggle('warning', { warning: true, stores: false })
 		setStore({...val})
 	}
 
 	const handleChangeStore = () => {
-		handleToggle('warning', {warning: false, stores: false})
+		handleToggle('warning', { warning: false, stores: false })
 		dispatch(setStoreConfig({
 			storeId: storeData?.id
 		}))

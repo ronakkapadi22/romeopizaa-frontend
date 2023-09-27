@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import Heading from '../../../shared/heading/Heading'
-import Icons from '../../../shared/Icons'
 import FieldGroup from '../../../shared/forms/FieldGroup'
 import Input from '../../../shared/forms/Input'
 import LocationList from '../location/locationList'
 
-const FindStore = ({ handleToggle, selectConfigStore, ...props }) => {
+const FindStore = ({ selectConfigStore, ...props }) => {
 
 	const [storeLocation, setStoreLocation] = useState({
 		store: ''
@@ -33,11 +32,6 @@ const FindStore = ({ handleToggle, selectConfigStore, ...props }) => {
 		>
 			<div className="w-full flex justify-between items-center">
 				<Heading tag="head_3" headClass="text-2xl" text="Select Store" />
-				<Icons
-					id="close"
-					className="cursor-pointer"
-					onClick={() => handleToggle('stores')}
-				/>
 			</div>
 			<FieldGroup className="mt-4" isHideError isHideLabel>
 				<Input

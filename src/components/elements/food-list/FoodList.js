@@ -6,7 +6,6 @@ import useHistory from '../../../hooks/useHistory'
 
 const FoodList = ({ title, className, showBredcrump, item, productList }) => {
 	const history = useHistory()
-
 	return (
 		<div id={String(title).toLowerCase()}
 			className={classNames(

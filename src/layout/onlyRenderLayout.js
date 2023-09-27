@@ -26,6 +26,8 @@ const OnlyRenderLayout = ({ isShowHeader, ...props }) => {
 		}
 	}, [])
 
+	console.log('only', customer)
+
 	const fetchAddress = useCallback(async() => {
 		try {
 			const response = await addressList({

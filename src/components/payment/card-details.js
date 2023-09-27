@@ -63,7 +63,6 @@ const CardDetails = ({ handleClose }) => {
         })
     }
 
-
 	const cardData = [
 		{
 			id: 'first_name',

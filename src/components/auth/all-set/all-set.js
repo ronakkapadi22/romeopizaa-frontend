@@ -16,6 +16,7 @@ const AllSet = ({ ...props }) => {
 	const [loading, setLoading] = useState(false)
 	const dispatch = useDispatch()
 	const authSession = useSelector(({ authSteps }) => authSteps?.user_registation)
+	const cartItems = useSelector(({ order }) => order?.cartItems)
 	const history = useHistory()
 
 	const handleOnBoard = async () => {
@@ -32,6 +33,7 @@ const AllSet = ({ ...props }) => {
 					token: response?.data?.data?.token,
 					isLogged: isTokenActivated(response?.data?.data?.token),
 					user: {...user, id: Number(user.sub)},
+					isRedirectCartPage: !!cartItems?.length,
 					...response?.data?.data
 				}))
 				setDataFromLocal('token', response?.data?.data?.token)

@@ -11,7 +11,7 @@ import { enqueueSnackbar } from 'notistack'
 import { addressList, createOrder, createPaymentIntent, getDiscount } from '../api/api'
 import { useDispatch, useSelector } from 'react-redux'
 import AddressListPopup from '../components/address/AddressList'
-import { addOrderDetail, currentAddress, getAllAddressList, isEditAddress, removeItemInCart, updateItemInCart } from '../redux/action'
+import { addOrderDetail, currentAddress, getAllAddressList, isEditAddress, redirectCart, removeItemInCart, updateItemInCart } from '../redux/action'
 import Input from '../shared/forms/Input'
 import useHistory from '../hooks/useHistory'
 import { loadStripe } from '@stripe/stripe-js'
@@ -25,17 +25,17 @@ const stripePromise = loadStripe('pk_test_51NdtmWA5wqCNycpnDrogeALWkhd1N4qKvxyKz
 
 const delivery_mode = [
 	{
-		id: 'priority',
+		id: 'Priority',
 		name: 'Priority',
 		desc: '10-20 min direct to you'
 	},
 	{
-		id: 'standard',
+		id: 'Standard',
 		name: 'Standard',
 		desc: '10-20 min'
 	},
 	{
-		id: 'schedule',
+		id: 'Schedule',
 		name: 'Schedule',
 		desc: 'Select a time',
 		icon: 'calender'
@@ -45,13 +45,15 @@ const delivery_mode = [
 const CartDetail = ({ className, ...props }) => {
 	const history = useHistory()
 	const customer = useSelector(({ auth }) => auth?.user)
+	const isRedirectCartPage = useSelector(({ auth }) => auth?.isRedirectCartPage)
 	const cartItems = useSelector(({ order }) => order?.cartItems)
 	const storeConfig = useSelector(({ storeConfig }) => storeConfig)
 	const cardDetail = useSelector(({ card }) => card)
 	const dispatch = useDispatch()
-	const [activeKey, setActiveKey] = useState('standard')
+	const [activeKey, setActiveKey] = useState('Standard')
 	const [clientSecret, setClientSecret] = useState("")
 	const [discountCode, setDiscountCode] = useState("")
+	const [tipCode, setTipCode] = useState('$0.00')
 	const [discountLoading, setDiscountLoading] = useState(false)
 	const [applied, setApplied] = useState(false)
 	const [order, setOrder] = useState({})
@@ -83,6 +85,10 @@ const CartDetail = ({ className, ...props }) => {
 		appearance
 	}
 
+	useEffect(() => {
+		isRedirectCartPage && dispatch(redirectCart())
+	}, [dispatch, isRedirectCartPage])
+
 	const handleActive = (id) => setActiveKey(id)
 	const handleToggle = (name, data = {}) => setOpen({ ...open, [name]: !open[name], ...data })
 
@@ -103,10 +109,10 @@ const CartDetail = ({ className, ...props }) => {
 		const val = value?.length > 10 ? discountCode : String(value).split('').map(i => i.toUpperCase()).join('')
 		setDiscountCode(val)
 		setApplied(false)
-		setDiscountData({
-			discountAmount: 0
-		})
+		setDiscountData({discountAmount: 0})
 	}
+
+	console.log('discountData', discountData)
 
 	const handleDiscount = async () => {
 		setDiscountLoading(true)
@@ -125,6 +131,9 @@ const CartDetail = ({ className, ...props }) => {
 			}
 		} catch (error) {
 			setDiscountLoading(false)
+			setDiscountData({
+				discountAmount: 0
+			})
 			enqueueSnackbar(error?.response?.data?.message || 'Somthing went wrong.', {
 				variant: 'error'
 			})
@@ -202,11 +211,13 @@ const CartDetail = ({ className, ...props }) => {
 			customerId: customer?.id,
 			customerAddressId: selectedAddress?.id,
 			totalQuantity: [...cartItems]?.map(val => (val?.quantity))?.reduce((data, acum) => data + acum, 0),
-			totalAmount: Number(subTotal) + Number(totalTax) + 1 - Number(discountData?.discountAmount || 0),
+			totalAmount: Number(subTotal) + Number(totalTax) + 1 - Number(discountData?.discountAmount),
 			subTotalAmount: Number(subTotal),
 			taxTotalAmount: Number(totalTax),
 			discountRate: 0,
 			noOfPersons: '1',
+			DeliveryType: activeKey,
+			tipAmount: Number(String(tipCode).replace('$', '')),
 			createFrom: 'WEB',
 			discountType: null,
 			orderType: 'DiningIn',
@@ -222,7 +233,11 @@ const CartDetail = ({ className, ...props }) => {
 				discountTotal: 0,
 				attributes,
 				modifiers
-			}))
+			})),
+
+			"discountRate": 0,
+			"discountAmount": 1.00,
+			"discountType": "FIX"
 
 		}
 
@@ -236,6 +251,36 @@ const CartDetail = ({ className, ...props }) => {
 		await handleOrderData({ ...payload })
 	}
 
+	console.log('tripCode', tipCode.length)
+
+	const handleTipCode = e => {
+		const { value } = e.target
+		const split = value.split('')
+		console.log('split', split, split.filter(val => {
+			if(Number(val) !== NaN) return val
+			return
+		}).join('').split('').filter(data => {
+			if(/^[A-Z]*$/.test(data)){
+				return null
+			}else if(/^[a-z]*$/.test(data)){
+				return null
+			}else return data
+		}).join(''))
+
+		const array = split.filter(val => {
+			if(Number(val) !== NaN) return val
+			return
+		}).join('').split('').filter(data => {
+			if(/^[A-Z]*$/.test(data)){
+				return null
+			}else if(/^[a-z]*$/.test(data)){
+				return null
+			}else return data
+		}).join('')
+
+		setTipCode(array?.length === 0 ? '$0.00' : value?.length < 6 ? array : tipCode)
+	}
+
 	const handlePaymentIntent = async () => {
 
 		if (!customer) {
@@ -247,9 +292,10 @@ const CartDetail = ({ className, ...props }) => {
 			return handleToggle('address')
 		}
 		setLoading(true)
+		console.log('subTotal', subTotal, totalTax, discountData)
 		try {
 			const response = await createPaymentIntent({
-				amount: (Number(subTotal) + Number(totalTax) + 1 - (discountData?.discountAmount || 0)) * 100,
+				amount: (Number(subTotal) + Number(totalTax) + 1 - discountData?.discountAmount || 0) * 100,
 				currency: 'gbp',
 				metadata: {
 					customerId: customer?.id || '',
@@ -286,6 +332,8 @@ const CartDetail = ({ className, ...props }) => {
 			variant: 'success'
 		})
 	}, [dispatch])
+
+	console.log('cardDetail', cardDetail)
 
 	return (
 		<div
@@ -470,7 +518,7 @@ const CartDetail = ({ className, ...props }) => {
 						<div className="mt-[18px]">
 							<div className="flex justify-between items-center">
 								<p className="font-medium">Add a Tip</p>
-								<Label className="px-4 rounded-2xl bg-cultured" label="$0.00" />
+								<input className="px-4 rounded-2xl bg-cultured max-w-[80px]" type='text' onChange={handleTipCode} value={tipCode} />
 							</div>
 							<p className="text-xs text-gray1 my-4">
 								100% of your tip goes to your courier. Tips are based on your

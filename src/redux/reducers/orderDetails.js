@@ -4,7 +4,8 @@ const initialState = {
 	cartItems: [],
 	orderData: {},
 	currentAddress: {},
-	wishLists: {}
+	wishLists: {},
+	isOpenCheckoutModal: false
 }
 
 export const orderDetailData = (state = initialState, action) => {
@@ -16,6 +17,11 @@ export const orderDetailData = (state = initialState, action) => {
 				orderData: {
 					...state.orderData, ...payload
 				}
+			}
+		case constant.OPEN_CART_MODAL:
+			return {
+				...state,
+				isOpenCheckoutModal: payload
 			}
 		case constant.ADD_WISHLIST:
 			return {

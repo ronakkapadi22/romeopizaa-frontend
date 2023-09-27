@@ -29,7 +29,7 @@ const PrivateLayout = ({ ...props }) => {
 		fetchStoreList()
 	}, [])
 
-	const fetchAddress = useCallback(async() => {
+	const fetchAddress = useCallback(async () => {
 		try {
 			const response = await addressList({
 				customerId: customer?.id

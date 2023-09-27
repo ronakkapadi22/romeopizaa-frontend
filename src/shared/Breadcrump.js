@@ -21,6 +21,8 @@ const Breadcrump = ({ data, ...props }) => {
 		}
 	}
 
+	console.log('pathSlice', data)
+
 	return (
 		<div className="flex" {...props}>
 			<div className="flex">

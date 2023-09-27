@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom'
 import { productDetails } from '../api/api'
 import { enqueueSnackbar } from 'notistack'
 import { useDispatch, useSelector } from 'react-redux'
-import { addItemInCart, updateItemInCart } from '../redux/action'
+import { addItemInCart, handleOpenCheckoutModal, updateItemInCart } from '../redux/action'
 import Loader from '../shared/Loader/Loader'
 
 const ProductDetails = ({ ...props }) => {
@@ -57,10 +57,10 @@ const ProductDetails = ({ ...props }) => {
 			}, modifiers: {
 				selectType: 'SINGLE',
 				...modifiers
-			}
+			},
+			instruction: current?.instruction || ''
 		})
 	}, [cartItems, id])
-
 
 	const handleQuantity = (type) => {
 		setItemData({
@@ -75,6 +75,8 @@ const ProductDetails = ({ ...props }) => {
 		})
 		setIsUpdated(true)
 	}
+
+	console.log('itemData', itemData)
 
 	const handleAttributes = (e, item, mainItem) => {
 		const { value } = e.target
@@ -173,6 +175,8 @@ const ProductDetails = ({ ...props }) => {
 		enqueueSnackbar(isUpdated || alreadyAdded ? 'Item updated on basket successfully.' : 'Item added on basket successfully.', {
 			variant: 'success'
 		})
+
+		dispatch(handleOpenCheckoutModal(true))
 	}
 
 	if(loading) return <Loader/>
@@ -249,7 +253,7 @@ const ProductDetails = ({ ...props }) => {
 															<p className="text-lg">{value.name}</p>
 															<p className="text-lg">+${value.price}</p>
 														</div>
-														<input checked={itemData?.attributes?.[value?.id]?.id === value?.id} value={value?.id} onChange={(e) => handleAttributes(e, value, item)} className="cursor-pointer" type="radio" />
+														<input checked={itemData?.attributes?.[value?.id]?.id === value?.id} value={value?.id} onChange={(e) => handleAttributes(e, value, item)} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
 													</div>
 												))}
 											</div>
@@ -283,7 +287,7 @@ const ProductDetails = ({ ...props }) => {
 															<p className="text-lg">{value?.name}</p>
 															<p className="text-lg">+${value?.price}</p>
 														</div>
-														<input checked={itemData?.modifiers?.[value?.id]?.id === value?.id} onChange={(e) => handleModifiers(e, value, item)} value={value.id} className="cursor-pointer" type="checkbox" />
+														<input checked={itemData?.modifiers?.[value?.id]?.id === value?.id} onChange={(e) => handleModifiers(e, value, item)} value={value.id} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
 													</div>
 												</div>))}
 											{/* <div className="mt-6">

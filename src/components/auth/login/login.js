@@ -4,7 +4,7 @@ import Button from '../../../shared/Buttons/Button'
 import Form from '../../../shared/forms/Form'
 import Heading from '../../../shared/heading/Heading'
 import FieldGroup from '../../../shared/forms/FieldGroup'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setLoggedUser } from '../../../redux/action'
 import { isTokenActivated } from '../../../utils/helper'
 import { loginValidation } from '../../../utils/validation'
@@ -26,6 +26,7 @@ const Login = () => {
 	const history = useHistory()
 	const [loading, setLoading] = useState(false)
 	const [formData, setFormData] = useState(initialState)
+	const cartItems = useSelector(({ order }) => order?.cartItems)
 	const [error, setError] = useState({})
 	const [showPassword, setShowPassword] = useState({
         password: false
@@ -36,6 +37,8 @@ const Login = () => {
             password: !showPassword.password
         })
     }
+
+	console.log('cartItems', cartItems)
 
 	const handleChange = (e) => {
 		const { name, value } = e.target
@@ -61,10 +64,10 @@ const Login = () => {
 				dispatch(setLoggedUser({
 					token: response?.data?.data?.token,
 					isLogged: isTokenActivated(response?.data?.data?.token),
-					user: {...response?.data?.data}
+					user: {...response?.data?.data},
+					isRedirectCartPage: !!cartItems?.length
 				}))
 				setDataFromLocal('token', response?.data?.data?.token)
-				history('/')
 			}
 		} catch (error) {
 			setLoading(false)

@@ -55,12 +55,14 @@ const TableBooking = ({ ...props }) => {
 		fetchTableList()
 	}, [storeDetail?.data?.id])
 
-	const handleChange = (e) => {
+	const 
+	handleChange = (e) => {
 		const { name, value } = e.target
         const newVal = name !== 'phoneNumber' ? value : `${tableBooking.countryCode}${value}`
 		setTableBooking({
 			...tableBooking,
-			[name]: name !== 'phoneNumber' ? value : value?.length > 11 ? tableBooking.phoneNumber : value
+			[name]: name !== 'phoneNumber' ? value : value?.length > 11 ? tableBooking.phoneNumber : value,
+			person: newVal > 10 ? tableBooking.person : newVal 
 		})
 		setError({ ...error, [name]: validation(name, newVal) })
 	}

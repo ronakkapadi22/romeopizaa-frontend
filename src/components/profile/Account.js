@@ -28,6 +28,8 @@ const Account = ({ ...props }) => {
 	const [error, setError] = useState(initialState)
 	const [loading, setLoading] = useState(false)
 
+	console.log('error', error)
+
 	const handleChange = (e) => {
 		const { name, value, files, type } = e.target
 		const newVal = name !== 'contact' ? value : `${account.code}${value}`
@@ -92,6 +94,7 @@ const Account = ({ ...props }) => {
 			formData.append('phoneNumber', account.contact)
 			formData.append('profile_old', user?.profile)
 			formData.append('countryCode', account.code)
+			console.log('account.profile', account.profile)
 			if(account.profile){
 				formData.append('profile', account.profile)
 			}
@@ -123,6 +126,7 @@ const Account = ({ ...props }) => {
 		const { profile, coutry, code, ...other } = account
 		Object.keys({...other}).forEach(val => {
 			const newVal = val !== 'contact' ? account[val] : `${code}${account[val]}`
+			console.log('newVal', newVal)
 			const message = validation(val, newVal)
 			if (message) { error[val] = message }
 		})
@@ -164,7 +168,7 @@ const Account = ({ ...props }) => {
 							name: 'name',
 							value: account.name,
 							type: 'text',
-							placeholder: 'Darlene Robertson',
+							placeholder: 'Full Name',
 							onChange: handleChange,
 							className: 'sm:min-w-full',
 							error: error['name']
@@ -185,7 +189,7 @@ const Account = ({ ...props }) => {
 								name: 'contact',
 								value: account.contact,
 								type: 'number',
-								placeholder: '9876543210',
+								placeholder: 'Phone Number',
 								onChange: handleChange,
 								className: 'sm:min-w-full',
 								error: error['contact'],
@@ -200,7 +204,7 @@ const Account = ({ ...props }) => {
 							name: 'email',
 							value: account.email,
 							type: 'email',
-							placeholder: 'darlenerobertson@gmail.com',
+							placeholder: 'Email',
 							onChange: handleChange,
 							className: 'sm:min-w-full',
 							error: error['email']

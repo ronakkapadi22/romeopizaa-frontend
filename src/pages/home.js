@@ -59,6 +59,8 @@ const HomePage = ({ ...props }) => {
 		dispatch(addOrderDetail({orderId : 1}))
 	}, [])
 
+	console.log('category', category, productList)
+
 	return (
 		<div {...props}>
 			<Banner />

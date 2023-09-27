@@ -32,6 +32,7 @@ const Checkout = ({ handleClose, handleOrder, clientSecret }) => {
             setOrderType(paymentIntent.status)
             switch (paymentIntent.status) {
                 case "succeeded":
+                    console.log('>>', 2)
                     setMessage("Payment succeeded!")
                     break
                 case "processing":

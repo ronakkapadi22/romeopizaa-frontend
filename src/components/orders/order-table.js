@@ -42,20 +42,20 @@ const OrderTable = ({ data, loading, ...props }) => {
                     <p className='mb-1 text-black' >{val?.customer_address?.streetName}, {val?.customer_address?.locality} ({val?.customer_address?.postCode})</p>
                     <p className='text-gray2 text-sm'>{val?.customer_address?.country}</p>
                   </div> : <div className='mt-6'>
-                      <p className='text-black' >No address</p>
+                    <p className='text-black' >No address</p>
                   </div>
                   }
                 </td>
                 <td>
                   <div className='mt-6'>
                     <p className='mb-1 text-black' >{
-                        val?.order_items?.map(item => item.name).join(' + ')
+                      val?.order_items?.map(item => item.name).join(' + ')
                     }</p>
                     <p className='text-gray2 text-sm'>Total: ${val?.totalAmount}</p>
                   </div>
                 </td>
                 <td>
-                  <p className={classNames('rounded-[36px] px-[10px] py-1 inline-block', val?.orderStatus === 'Cancelled' ? "text-red bg-[#fbe0e0]" : "text-orange bg-[#FFF5E0]")} >{val?.orderStatus}</p>
+                  <p className={classNames('rounded-[36px] px-[10px] py-1 inline-block', val?.orderStatus === 'Canceled' ? "text-red bg-[#fbe0e0]" : "text-orange bg-[#FFF5E0]")} >{val?.orderStatus}</p>
                 </td>
               </tr>
             ))

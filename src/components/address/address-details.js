@@ -28,7 +28,6 @@ const AddressDetails = ({ handleClose }) => {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState({})
 
-
 	const getCoutryCode = useCallback(async () => {
 		try {
 			const response = await coutryResponse()
