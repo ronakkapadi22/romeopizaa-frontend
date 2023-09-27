@@ -33,12 +33,12 @@ const TableBooking = ({ ...props }) => {
 	const [tableList, setTableList] = useState([])
 	const [error, setError] = useState({})
 
-	const fetchTableList = useCallback(async() => {
+	const fetchTableList = useCallback(async () => {
 		try {
 			const response = await getBookingTables({
 				storeId: storeConfig?.storeId
 			})
-			if(response?.data){
+			if (response?.data) {
 				setTableList(response?.data?.data)
 			}
 		} catch (error) {
@@ -55,15 +55,17 @@ const TableBooking = ({ ...props }) => {
 		fetchTableList()
 	}, [storeDetail?.data?.id])
 
-	const handleChange = (e) => {
-		const { name, value } = e.target
-        const newVal = name !== 'phoneNumber' ? value : `${tableBooking.countryCode}${value}`
-		setTableBooking({
-			...tableBooking,
-			[name]: name !== 'phoneNumber' ? value : value?.length > 11 ? tableBooking.phoneNumber : value
-		})
-		setError({ ...error, [name]: validation(name, newVal) })
-	}
+	const
+		handleChange = (e) => {
+			const { name, value } = e.target
+			const newVal = name !== 'phoneNumber' ? value : `${tableBooking.countryCode}${value}`
+			setTableBooking({
+				...tableBooking,
+				[name]: name !== 'phoneNumber' ? value : value?.length > 11 ? tableBooking.phoneNumber : value,
+				person: newVal > 10 ? tableBooking.person : newVal
+			})
+			setError({ ...error, [name]: validation(name, newVal) })
+		}
 
 	const handleCoutryCode = (value) => {
 		setTableBooking({
@@ -75,7 +77,7 @@ const TableBooking = ({ ...props }) => {
 		})
 	}
 
-	const generateTableBooking = useCallback(async() => {
+	const generateTableBooking = useCallback(async () => {
 		setLoading(true)
 		try {
 			const payload = {
@@ -87,9 +89,9 @@ const TableBooking = ({ ...props }) => {
 				date: moment(tableBooking.date).format('DD/MM/YYYY'),
 				time: moment(tableBooking.time).format('hh:mm A')
 			}
-			
+
 			const response = await createTableBooking(payload)
-			if(response?.data){
+			if (response?.data) {
 				setLoading(false)
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
@@ -108,11 +110,11 @@ const TableBooking = ({ ...props }) => {
 		}
 	})
 
-	const handleSubmit = async(e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault()
 		let error = {}
 		const { person, phoneNumber, countryCode, selectedTable, date, name, time } = tableBooking
-		Object.keys({person, phoneNumber, countryCode, selectedTable, date, name, time}).forEach((val) => {
+		Object.keys({ person, phoneNumber, countryCode, selectedTable, date, name, time }).forEach((val) => {
 			const newVal = val !== 'phoneNumber' ? tableBooking[val] : `${countryCode}${tableBooking[val]}`
 			const message = validation(val, newVal)
 			if (message) {
@@ -145,7 +147,7 @@ const TableBooking = ({ ...props }) => {
 							value: tableBooking.selectedTable,
 							type: 'select',
 							placeholder: 'Choose table',
-							options: tableList?.map(({id, seatingCapacity, shapeType}) => ({id, label: `${shapeType} (${seatingCapacity})`, value: id})),
+							options: tableList?.map(({ id, seatingCapacity, shapeType }) => ({ id, label: `${shapeType} (${seatingCapacity})`, value: id })),
 							onChange: handleChange,
 							error: error['selectedTable']
 						}}

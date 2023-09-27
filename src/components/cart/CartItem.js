@@ -6,14 +6,14 @@ import { removeItemInCart, updateItemInCart } from '../../redux/action'
 import useHistory from '../../hooks/useHistory'
 import { enqueueSnackbar } from 'notistack'
 
-const CartItem = ({ cartList, handleToggle, ...props }) => {
+const CartItem = ({ className, cartList, handleToggle, isPopup, ...props }) => {
 
 	const dispatch = useDispatch()
 	const history = useHistory()
 
-	const handleNavigate = useCallback((path='/') => {
+	const handleNavigate = useCallback((path = '/') => {
 		history(path)
-		handleToggle()
+		handleToggle(isPopup)
 	}, [history, handleToggle])
 
 	const handleQuantity = (type, id) => {
@@ -33,9 +33,9 @@ const CartItem = ({ cartList, handleToggle, ...props }) => {
 			variant: 'success'
 		})
 	}, [dispatch])
-	
+
 	return (
-		<div {...props} className="overflow-auto h-[600px] sm:h-[650px] md:h-[685px]">
+		<div {...props} className={className}>
 			{cartList.map((data, index) => (
 				<div key={data?.productId} className="bg-cultured1 mb-6 last:mb-0">
 					<div className="w-full">

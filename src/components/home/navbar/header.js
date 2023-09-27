@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { classNames } from '../../../utils/helper'
 import Icons from '../../../shared/Icons'
 import Label from '../../../shared/labels/label'
@@ -6,21 +6,36 @@ import Button from '../../../shared/Buttons/Button'
 import IconButton from '../../../shared/Buttons/IconButton'
 import CustomPortal from '../../../shared/CustomPortal'
 import useToggle from '../../../hooks/useToggle'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import useHistory from '../../../hooks/useHistory'
 import AuthDrawer from '../../elements/drawer/auth-drawer'
 import CartDrawer from '../../elements/drawer/cart-drawer'
+import CartItem from '../../cart/CartItem'
+import Heading from '../../../shared/heading/Heading'
+import { handleOpenCheckoutModal } from '../../../redux/action'
 
 const Header = ({ ...props }) => {
 	const auth = useSelector(({ auth }) => auth)
+	const dispatch = useDispatch()
 	const cartItems = useSelector(({ order }) => order?.cartItems)
+	const isOpenCheckoutModal = useSelector(({ order }) => order?.isOpenCheckoutModal)
 	const history = useHistory()
-	const [toggle, setToggle] = useToggle(false)
+	const [toggle, setToggle] = useState(false)
 	const [isOpen, setIsOpen] = useToggle(false)
 
-	const handleToggle = () => setToggle((prev) => !prev)
+	const handleToggle = (isPopup) => {
+		setToggle(isPopup ? !isPopup : !toggle)
+		dispatch(handleOpenCheckoutModal(false))
+	}
 	const handleCartToggle = () => setIsOpen((prev) => !prev)
 	const handleNavigate = (path = '/') => history(path)
+
+	const total = Number(cartItems?.map(val => val?.quantity * val?.price)?.reduce((val, accum) => val + accum, 0)).toFixed(2)
+
+	const handleRedirect = (path = '/') => {
+		dispatch(handleOpenCheckoutModal(false))
+		history(path)
+	}
 
 	return (
 		<section
@@ -44,15 +59,57 @@ const Header = ({ ...props }) => {
 					<p className="text-gray1 text-sm ml-2">Food,groceries,drinks,etc</p>
 				</IconButton>
 			) : null}
-			<div className="flex items-center">
+			<div className="relative flex items-center">
 				<Label
-					className="bg-black px-3 py-2 rounded-3xl flex text-white cursor-pointer"
+					className={classNames("bg-black px-3 py-2 rounded-3xl flex text-white cursor-pointer", 'relative')}
 					iconClass="text-white mr-1"
 					onClick={handleCartToggle}
 					label={cartItems?.length ? `Basket ${cartItems?.length}` : 'Basket 0'}
 					isShowIcon
+					{...{ isOpenCheckoutModal }}
 					icon="cart"
-				/>
+				>
+					{isOpenCheckoutModal ? <div className={classNames('w-[360px] z-[9] bg-white shadow-[0_2px_12px_0px_rgba(0,0,0,0.3)] rounded-lg h-[400px] top-[50px] right-0 absolute', isOpenCheckoutModal ? '-right-[48px] sm:right-0' : '')}>
+						<div {...props} className="relative w-full p-4 bg-white overflow-auto h-full rounded-lg ">
+							<div className="flex items-center justify-between">
+								<Heading
+									tag="head_5"
+									headClass="text-black text-[24px] font-medium"
+									text={`Basket ${cartItems?.length ? `(${cartItems?.length})` : ""}`}
+								/>
+								<Icons
+									id="close"
+									onClick={() => dispatch(handleOpenCheckoutModal(false))}
+									className="text-black w-5 h-5 cursor-pointer"
+								/>
+							</div>
+							{cartItems?.length ? <CartItem cartList={cartItems} {...{ handleToggle, isPopup: true }} className="mt-4" /> : <div {...props} className={classNames('mx-4 my-4 bg-white')}>
+								<div className='w-full flex justify-center flex-col items-center' >
+									<Icons className='w-40 h-40' id='empty-cart' />
+									<Heading tag='head_4' headClass='mt-4' text='Your basket is empty' />
+									<Button
+										btnClass="mt-6 w-full"
+										type="submit"
+										onClick={() => handleRedirect('/')}
+										label="Continue Shopping"
+										size="large"
+										apperianceType="primary"
+									/>
+								</div>
+							</div>}
+							{cartItems?.length ? <div className="relative w-full mt-6">
+								<Button
+									btnClass="w-full"
+									type="button"
+									onClick={() => handleRedirect('/cart')}
+									label={`Go to checkout ${total}`}
+									size="large"
+									apperianceType="primary"
+								/>
+							</div> : null}
+						</div>
+					</div> : null}
+				</Label>
 				{!auth?.isLogged ? (
 					<Button
 						label="Login"
@@ -62,7 +119,7 @@ const Header = ({ ...props }) => {
 					/>
 				) : null}
 				<IconButton
-					onClick={handleToggle}
+					onClick={() => handleToggle(false)}
 					className={classNames(
 						'bg-cultured ml-2 p-[10px] rounded-lg',
 						auth?.isLogged ? 'block' : 'lg:hidden'
@@ -80,7 +137,7 @@ const Header = ({ ...props }) => {
 				}}
 			>
 				<AuthDrawer {...{ auth, handleToggle }} />
-			</CustomPortal>: null}
+			</CustomPortal> : null}
 
 			{/* cart drawer */}
 			{isOpen ? <CustomPortal

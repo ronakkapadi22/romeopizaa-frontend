@@ -23,7 +23,7 @@ const initialState = {
 
 const CardDetails = ({ handleClose }) => {
 	const [formData, setFormData] = useState(initialState)
-	const cardDetail = useSelector(({card}) => card)
+	const cardDetail = useSelector(({ card }) => card)
 	const dispatch = useDispatch()
 	const [error, setError] = useState({})
 	const [phoneData, setPhoneData] = useState({
@@ -42,7 +42,7 @@ const CardDetails = ({ handleClose }) => {
 
 	const handleChange = (e) => {
 		const { name, value } = e.target
-		const newVal = name !== 'phone' ? formatter(name, value) : `${phoneData.countryCode}${value}` 
+		const newVal = name !== 'phone' ? formatter(name, value) : `${phoneData.countryCode}${value}`
 		setFormData({
 			...formData,
 			[name]: formatter(name, value)
@@ -54,16 +54,14 @@ const CardDetails = ({ handleClose }) => {
 	}
 
 	const handleCoutryCode = (value) => {
-        setPhoneData({
-            ...phoneData,
-            countryCode: value?.code
-        })
-        setError({
-            ...error, 'phone': validation('phone', `${value?.code}${formData.phone}`)
-        })
-    }
-
-	console.log('cardDetail', cardDetail)
+		setPhoneData({
+			...phoneData,
+			countryCode: value?.code
+		})
+		setError({
+			...error, 'phone': validation('phone', `${value?.code}${formData.phone}`)
+		})
+	}
 
 	const cardData = [
 		{
@@ -156,28 +154,25 @@ const CardDetails = ({ handleClose }) => {
 	useEffect(() => {
 		// eslint-disable-next-line no-unused-vars
 		const { isUpdated, ...data } = cardDetail
-		isUpdated && setFormData({...data})
+		isUpdated && setFormData({ ...data })
 	}, [dispatch, cardDetail])
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
 		let error = {}
-		console.log('formData', formData)
 		Object.keys(formData).forEach(val => {
 			const newVal = val !== 'phone' ? formData[val] : `${phoneData.countryCode}${formData[val]}`
 			const message = validation(val, formatter(val, newVal))
-			console.log('message', message)
 			if (message) {
 				error[val] = message
 			}
 		})
-		console.log('error', error)
-		if(Object.keys(error).length){
+		if (Object.keys(error).length) {
 			setError(error)
 			return
 		}
 
-		dispatch(addCard({...formData, isUpdated: !!formData.card_number}))
+		dispatch(addCard({ ...formData, isUpdated: !!formData.card_number }))
 		handleClose('payment')
 
 	}
@@ -197,15 +192,15 @@ const CardDetails = ({ handleClose }) => {
 					({ id, className, isHideError, isHideLabel, ...other }) => (
 						<FieldGroup key={id} {...{ isHideError, isHideLabel, className }}>
 							{id === 'phone' ? <div className="w-full flex items-center">
-                                <CountrySelector
-                                    {...{
-                                        handleChange: handleCoutryCode,
-                                        defaultValue: { coutry: phoneData.country, code: phoneData.countryCode }
-                                    }}
-                                    className="w-[100px] mr-2"
-                                />
-                                <Input className="!min-w-full" inputClass="!w-full" {...other} />
-                            </div> : <Input className="!min-w-full" {...other} />}
+								<CountrySelector
+									{...{
+										handleChange: handleCoutryCode,
+										defaultValue: { coutry: phoneData.country, code: phoneData.countryCode }
+									}}
+									className="w-[100px] mr-2"
+								/>
+								<Input className="!min-w-full" inputClass="!w-full" {...other} />
+							</div> : <Input className="!min-w-full" {...other} />}
 						</FieldGroup>
 					)
 				)}

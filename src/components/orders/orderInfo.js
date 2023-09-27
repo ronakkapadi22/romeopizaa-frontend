@@ -11,27 +11,25 @@ const OrderContainer = ({ order, handleClose }) => {
 
     const history = useHistory()
     const dispatch = useDispatch()
-	const [seconds, setSeconds] = useState(15)
+    const [seconds, setSeconds] = useState(15)
 
     useEffect(() => {
-		const interval = setInterval(() => {
-		  if (seconds > 0) {
-			setSeconds(seconds - 1)
-		  }
-		  if (seconds === 0) {
-			clearInterval(interval)
-            handleClose()
-            dispatch(clearCartItems())
-            history('/')
-		  }
-		}, 1000)
-	  
-		return () => {
-		  clearInterval(interval)
-		}
-	  }, [seconds])
+        const interval = setInterval(() => {
+            if (seconds > 0) {
+                setSeconds(seconds - 1)
+            }
+            if (seconds === 0) {
+                clearInterval(interval)
+                handleClose()
+                dispatch(clearCartItems())
+                history('/')
+            }
+        }, 1000)
 
-      console.log('order', order)
+        return () => {
+            clearInterval(interval)
+        }
+    }, [seconds])
 
     return (
         <div className="relative w-[96%] md:w-[575px] p-8 mx-auto rounded-xl bg-white">

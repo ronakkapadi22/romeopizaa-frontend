@@ -121,6 +121,13 @@ export const addItemInCart = (payload = {}) => {
 	}
 }
 
+export const handleOpenCheckoutModal = (payload = {}) => {
+	return {
+		type: constant.OPEN_CART_MODAL,
+		payload
+	}
+}
+
 export const updateItemInCart = (payload = {}) => {
 	return {
 		type: constant.UPDATE_CART_ITEM,
@@ -131,7 +138,7 @@ export const updateItemInCart = (payload = {}) => {
 export const removeItemInCart = (id) => {
 	return {
 		type: constant.REMOVE_CART_ITEM,
-		payload : id
+		payload: id
 	}
 }
 
@@ -171,6 +178,12 @@ export const setStoreConfig = (payload) => {
 export const cancelOrder = (payload) => {
 	return {
 		type: constant.CANCEL_ORDER,
+		payload
+	}
+}
+export const redirectCart = (payload) => {
+	return {
+		type: constant.IS_REDIRECT,
 		payload
 	}
 }

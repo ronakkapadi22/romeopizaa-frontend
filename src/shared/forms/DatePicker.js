@@ -9,7 +9,7 @@ const CustomInput = ({ value, defaultValue, error, inputRef, ...props }) => {
 		<div className="relative">
 			<input
 				className={classNames("w-full rounded-lg font-medium bg-cultured1 focus:border focus:border-gray1 placeholder:text-gray2 border border-cultured1 outline-none pl-12 pr-4 py-3",
-				error
+					error
 						? 'border border-[#DC2626] focus:!border-[#DC2626]'
 						: 'border border-cultured1 focus:border-gray1')}
 				{...props}
@@ -50,6 +50,7 @@ const DatePicker = ({
 				value={value}
 				options={{
 					dateFormat,
+					minDate: Date.now(),
 					mode: 'single'
 				}}
 				render={({ defaultValue, value, ...props }, ref) => {

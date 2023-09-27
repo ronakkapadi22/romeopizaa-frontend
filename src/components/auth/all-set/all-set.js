@@ -16,14 +16,15 @@ const AllSet = ({ ...props }) => {
 	const [loading, setLoading] = useState(false)
 	const dispatch = useDispatch()
 	const authSession = useSelector(({ authSteps }) => authSteps?.user_registation)
+	const cartItems = useSelector(({ order }) => order?.cartItems)
 	const history = useHistory()
 
 	const handleOnBoard = async () => {
 		setLoading(true)
 		try {
-			const response = await deviceVerification({...authSession})
+			const response = await deviceVerification({ ...authSession })
 
-			if(response?.data){
+			if (response?.data) {
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
 				})
@@ -31,7 +32,8 @@ const AllSet = ({ ...props }) => {
 				dispatch(setLoggedUser({
 					token: response?.data?.data?.token,
 					isLogged: isTokenActivated(response?.data?.data?.token),
-					user: {...user, id: Number(user.sub)},
+					user: { ...user, id: Number(user.sub) },
+					isRedirectCartPage: !!cartItems?.length,
 					...response?.data?.data
 				}))
 				setDataFromLocal('token', response?.data?.data?.token)

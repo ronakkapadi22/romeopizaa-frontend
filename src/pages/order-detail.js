@@ -4,7 +4,6 @@ import Breadcrump from '../shared/Breadcrump'
 import Heading from '../shared/heading/Heading'
 import Icons from '../shared/Icons'
 import Label from '../shared/labels/label'
-import IconButton from '../shared/Buttons/IconButton'
 import { useParams } from 'react-router-dom'
 import { enqueueSnackbar } from 'notistack'
 import { getOrder } from '../api/api'
@@ -13,13 +12,15 @@ import Button from '../shared/Buttons/Button'
 import CustomPortal from '../shared/CustomPortal'
 import { cancelOrder } from '../redux/action'
 import { classNames } from '../utils/helper'
+import useHistory from '../hooks/useHistory'
 
 const OrderDetail = ({ ...props }) => {
 
 	const dispatch = useDispatch()
+	const history = useHistory()
 	const { address } = useSelector(({ address }) => address)
-	const updateOrders = useSelector(({updateOrders}) => updateOrders)
-	const cardDetail  = useSelector(({ card }) => card)
+	const updateOrders = useSelector(({ updateOrders }) => updateOrders)
+	const cardDetail = useSelector(({ card }) => card)
 	const { storeDetail } = useSelector(({ store }) => store)
 	const [open, setOpen] = useState({
 		cancel: false
@@ -50,12 +51,13 @@ const OrderDetail = ({ ...props }) => {
 	const handleDeleteOrder = () => {
 		dispatch(cancelOrder({
 			orderId: id,
-			orderStatus: 'Cancelled'
+			orderStatus: 'Canceled'
 		}))
 		handleToggle('cancel')
-		enqueueSnackbar('Your order has been cancelled successfully', {
+		enqueueSnackbar('Your order has been canceled successfully', {
 			variant: 'success'
 		})
+		history('/orders')
 	}
 
 	const orderData = useMemo(() => {
@@ -83,7 +85,7 @@ const OrderDetail = ({ ...props }) => {
 								text="Delivery Details"
 							/>
 							<Label
-								label={updateOrders?.some(val => val?.orderId === String(id)) ? "Cancelled" : orderData?.orderStatus}
+								label={updateOrders?.some(val => val?.orderId === String(id)) ? "Canceled" : orderData?.orderStatus}
 								className={classNames("px-4 py-1 cursor-pointer rounded-[14px]", updateOrders?.some(val => val?.orderId === String(id)) ? 'text-red bg-[#fbe0e0]' : 'text-orange bg-[#FFF5E0]')}
 							/>
 						</div>
@@ -115,7 +117,7 @@ const OrderDetail = ({ ...props }) => {
 							tag="head_4"
 							text="Delivery Estimate"
 						/>
-						<p className="font-medium mb-6">Priority</p>
+						<p className="font-medium mb-6">{orderData?.deliveryType || 'Priority'}</p>
 						{/* <hr className="text-cultured" />
 						<Heading
 							headClass="text-[20px] md:text-[24px] font-semibold my-6"
@@ -196,7 +198,7 @@ const OrderDetail = ({ ...props }) => {
 								<div className="mt-2 mb-6">
 									<div className="flex justify-between items-center text-lg mt-4">
 										<p>Discount</p>
-										<p>{orderData?.discountAmount ? '-': ''}${Number(orderData?.discountAmount || 0).toFixed(2)}</p>
+										<p>{orderData?.discountAmount ? '-' : ''}${Number(orderData?.discountAmount || 0).toFixed(2)}</p>
 									</div>
 									<div className="flex justify-between items-center mt-6 text-xl font-semibold">
 										<p>Total</p>
@@ -204,22 +206,22 @@ const OrderDetail = ({ ...props }) => {
 									</div>
 								</div>
 							</div>
-							<Button
+							{!updateOrders?.some(val => val?.orderId === String(id)) ? <Button
 								btnClass="w-full !border-red !bg-red !text-white md:mt-6"
 								apperianceType="primary"
 								size="large"
 								disabled={updateOrders?.some(val => val?.orderId === String(id))}
 								onClick={() => handleToggle('cancel')}
-								label={updateOrders?.some(val => val?.orderId === String(id)) ? "Order Cancelled" : "Cancel Order"}
-							/>
+								label={updateOrders?.some(val => val?.orderId === String(id)) ? "Order Canceled" : "Cancel Order"}
+							/> : null}
 						</div>
 					</div>
 				</div>
 			</div>
 			{
 				open.cancel ? <CustomPortal animation="animate-popup-top"
-				{...{ toggle: open.cancel }}
-				className="relative w-full flex items-center">
+					{...{ toggle: open.cancel }}
+					className="relative w-full flex items-center">
 					<div className="relative w-[96%] md:w-[575px] p-8 mx-auto rounded-lg bg-white">
 						<div className='w-full' >
 							<div className='flex justify-start items-start p-2' >

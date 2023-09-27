@@ -10,6 +10,10 @@ export const userData = (state = initialState, action) => {
 				...state,
 				...payload
 			}
+		case constant.IS_REDIRECT:
+			return {
+				...state, isRedirectCartPage : false
+			}
 		case constant.LOG_OUT:
 			return {}
 		default:

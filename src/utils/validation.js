@@ -5,10 +5,6 @@ const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
 export const validation = (name, value, data = null) => {
-	if (!value || String(value)?.trim() === '') {
-		return 'Required'
-	}
-
 	switch (name) {
 		case 'contact':
 		case 'phone':
@@ -18,6 +14,14 @@ export const validation = (name, value, data = null) => {
 			} else if (value?.length <= 12 && !isValidPhoneNumber(value)) {
 				return 'Invalid phone number.'
 			} else return ''
+		case 'old_password':
+			if (!value || String(value)?.trim() === '') {
+				return 'Old password is required.'
+			} else return ''
+		case 'new_password':
+			if (!value || String(value)?.trim() === '') {
+				return 'New password is required.'
+			} else return ''
 		case 'otp':
 			if (data !== value) {
 				return 'Invalid'
@@ -26,16 +30,11 @@ export const validation = (name, value, data = null) => {
 			if (!emailRegex.test(value)) {
 				return 'Invalid email.'
 			} else return ''
-		case 'password':
-		case 'old_password':
-		case 'new_password':
-			if (!passwordRegex.test(value)) {
-				return 'Password must be at least 8 characters long with 1 uppercase 1 lowercase and 1 special character.'
-			} else return ''
 		case 'confirm_password':
-			if (!passwordRegex.test(value)) {
-				return 'Password must be at least 8 characters long with 1 uppercase 1 lowercase and 1 special character.'
-			} else if (value !== (data?.password || data?.new_password)) {
+			if (!value || String(value)?.trim() === '') {
+				return 'Confirm password is required.'
+			}
+			else if (value !== (data?.password || data?.new_password)) {
 				return 'The password and confirmation password do not match.'
 			} else return ''
 		case 'postCode':

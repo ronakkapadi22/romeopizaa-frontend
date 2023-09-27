@@ -41,23 +41,21 @@ const Otp = ({ isLoginRoute, ...props }) => {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-		  if (seconds > 0) {
-			setSeconds(seconds - 1)
-		  }
-		  if (seconds === 0) {
-			clearInterval(interval)
-		  }
+			if (seconds > 0) {
+				setSeconds(seconds - 1)
+			}
+			if (seconds === 0) {
+				clearInterval(interval)
+			}
 		}, 1000)
-	  
-		return () => {
-		  clearInterval(interval)
-		}
-	  }, [seconds])
 
-	  console.log('authSession', authSession)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [seconds])
 
 	const handleOtpVerification = async (isLogin) => {
-		setLoading({...loading, otp: true})
+		setLoading({ ...loading, otp: true })
 		try {
 			const payload = {
 				countryCode: authSession?.countryCode,
@@ -71,9 +69,9 @@ const Otp = ({ isLoginRoute, ...props }) => {
 
 			const response = isLogin ? await otpVerificationWithRegister(payload) : await otpVerificationWithRegister(payload)
 
-			if(response?.data){
+			if (response?.data) {
 				const { data } = response?.data
-				setLoading({...loading, otp: false})
+				setLoading({ ...loading, otp: false })
 				enqueueSnackbar(response?.data?.message, {
 					variant: 'success'
 				})
@@ -83,14 +81,14 @@ const Otp = ({ isLoginRoute, ...props }) => {
 					setLoggedUser({
 						token: data?.token,
 						isLogged: isTokenActivated(data?.token),
-						user: {...user, id: Number(user?.sub)}
+						user: { ...user, id: Number(user?.sub) }
 					})
 				)
 				isLogin && handleLogin(response?.data)
 			}
 
 		} catch (error) {
-			setLoading({...loading, otp: false})
+			setLoading({ ...loading, otp: false })
 			if (error?.response?.data) {
 				enqueueSnackbar(error?.response?.data?.data?.['otp']?.[0], {
 					variant: 'error'
@@ -135,8 +133,8 @@ const Otp = ({ isLoginRoute, ...props }) => {
 		}))
 	}, [dispatch])
 
-	const resentOtp = useCallback(async() => {
-		setLoading({...loading, resend: true})
+	const resentOtp = useCallback(async () => {
+		setLoading({ ...loading, resend: true })
 		try {
 			const response = await sendOtpWithRegister({
 				countryCode: authSession?.countryCode,
@@ -144,14 +142,15 @@ const Otp = ({ isLoginRoute, ...props }) => {
 				email: authSession?.email,
 				password: authSession?.password
 			})
-			if(response?.data){
-				setLoading({...loading, resend: false})
+			if (response?.data) {
+				setLoading({ ...loading, resend: false })
 				dispatch(setupAuthData({
-                  ...authSession,  otp: response?.data?.data?.otp || ''}))
+					...authSession, otp: response?.data?.data?.otp || ''
+				}))
 				setSeconds(10)
 			}
 		} catch (error) {
-			setLoading({...loading, resend: false})
+			setLoading({ ...loading, resend: false })
 			if (error?.response?.data) {
 				enqueueSnackbar(error?.response?.data || 'Somthing went wrong.', {
 					variant: 'error'
@@ -161,8 +160,8 @@ const Otp = ({ isLoginRoute, ...props }) => {
 		}
 	}, [dispatch])
 
-	const handleResetOtp = useCallback(async() => {
-		if(seconds !== 0) return
+	const handleResetOtp = useCallback(async () => {
+		if (seconds !== 0) return
 		await resentOtp()
 	}, [seconds])
 
@@ -219,8 +218,8 @@ const Otp = ({ isLoginRoute, ...props }) => {
 								I didn’t receive a code ({`00:${seconds < 10 ? `0${seconds}` : seconds}`})
 							</p>
 							<LinkButton onClick={handleResetOtp} disabled={seconds !== 0}
-								{...{ label: loading.resend ? 'Wait':'Resend' }}
-								className={classNames("text-lg font-medium text-center cursor-pointer", seconds === 0 ? 'text-[#2873E4]': 'text-gray1')}
+								{...{ label: loading.resend ? 'Wait' : 'Resend' }}
+								className={classNames("text-lg font-medium text-center cursor-pointer", seconds === 0 ? 'text-[#2873E4]' : 'text-gray1')}
 							/>
 						</div>
 					</Form>

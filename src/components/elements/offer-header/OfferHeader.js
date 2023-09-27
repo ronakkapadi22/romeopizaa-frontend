@@ -15,8 +15,8 @@ const OfferHeader = ({ className, ...props }) => {
 
 	const dispatch = useDispatch()
 	const history = useHistory()
-	const store = useSelector(({store}) => store?.storeDetail)
-	const storeConfig = useSelector(({storeConfig}) => storeConfig)
+	const store = useSelector(({ store }) => store?.storeDetail)
+	const storeConfig = useSelector(({ storeConfig }) => storeConfig)
 
 	const [storeData, setStore] = useState({})
 	const [toggle, setToggle] = useState({
@@ -26,25 +26,24 @@ const OfferHeader = ({ className, ...props }) => {
 
 	const handleToggle = (name, data = {}) => setToggle({ ...toggle, [name]: !toggle[name], ...data })
 
-
 	const selectConfigStore = (val) => {
-		console.log('val', val)
-		if(val?.id === storeConfig?.storeId){
+		if (val?.id === storeConfig?.storeId) {
 			enqueueSnackbar('Already selected', {
 				variant: 'success'
 			})
+			handleToggle('stores')
 			return
 		}
-		handleToggle('warning', {warning: true, stores: false})
-		setStore({...val})
+		handleToggle('warning', { warning: true, stores: false })
+		setStore({ ...val })
 	}
 
 	const handleChangeStore = () => {
-		handleToggle('warning', {warning: false, stores: false})
+		handleToggle('warning', { warning: false, stores: false })
 		dispatch(setStoreConfig({
 			storeId: storeData?.id
 		}))
-		dispatch(setStoreData({data: storeData}))
+		dispatch(setStoreData({ data: storeData }))
 		dispatch(clearCartItems([]))
 		history('/')
 		enqueueSnackbar('Store changed successfully', {
@@ -66,7 +65,7 @@ const OfferHeader = ({ className, ...props }) => {
 			>
 				<Icons id="location" />
 				<p className="text-gray1 text-[13px] ml-2">
-					{ store?.data?.businessName || 'Select Store' }
+					{store?.data?.businessName || 'Select Store'}
 				</p>
 			</IconButton>
 			<div className="flex flex-col-reverse lg:flex-row items-center md:items-start">
@@ -101,11 +100,11 @@ const OfferHeader = ({ className, ...props }) => {
 			>
 				<FindStore {...{ handleToggle, selectConfigStore }} />
 			</CustomPortal> : null}
-			
+
 			{
 				toggle.warning ? <CustomPortal animation="animate-popup-top"
-				{...{ toggle: toggle.warning }}
-				className="relative w-full flex items-center">
+					{...{ toggle: toggle.warning }}
+					className="relative w-full flex items-center">
 					<div className="relative w-[96%] md:w-[575px] p-8 mx-auto rounded-lg bg-white">
 						<div className='w-full' >
 							<div className='flex justify-start items-start p-2' >

@@ -168,7 +168,7 @@ const Account = ({ ...props }) => {
 							name: 'name',
 							value: account.name,
 							type: 'text',
-							placeholder: 'Darlene Robertson',
+							placeholder: 'Full Name',
 							onChange: handleChange,
 							className: 'sm:min-w-full',
 							error: error['name']
@@ -189,7 +189,7 @@ const Account = ({ ...props }) => {
 								name: 'contact',
 								value: account.contact,
 								type: 'number',
-								placeholder: '9876543210',
+								placeholder: 'Phone Number',
 								onChange: handleChange,
 								className: 'sm:min-w-full',
 								error: error['contact'],
@@ -204,7 +204,7 @@ const Account = ({ ...props }) => {
 							name: 'email',
 							value: account.email,
 							type: 'email',
-							placeholder: 'darlenerobertson@gmail.com',
+							placeholder: 'Email',
 							onChange: handleChange,
 							className: 'sm:min-w-full',
 							error: error['email']

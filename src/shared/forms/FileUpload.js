@@ -1,6 +1,6 @@
 import React from 'react'
 import Icons from '../Icons'
-import profile from '../../assets/images/profile.png'
+import profile from '../../assets/images/user.png'
 import { classNames } from '../../utils/helper'
 
 const FileUpload = ({ image, className, handleChange, ...props }) => {

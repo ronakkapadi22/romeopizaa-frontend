@@ -9,7 +9,7 @@ import { enqueueSnackbar } from 'notistack'
 const PrivateLayout = ({ ...props }) => {
 
 	const customer = useSelector(({ auth }) => auth?.user)
-    const storeConfig = useSelector(({storeConfig}) => storeConfig)
+	const storeConfig = useSelector(({ storeConfig }) => storeConfig)
 
 	const dispatch = useDispatch()
 	const fetchStoreList = useCallback(async () => {
@@ -29,9 +29,7 @@ const PrivateLayout = ({ ...props }) => {
 		fetchStoreList()
 	}, [])
 
-	console.log('private', customer)
-
-	const fetchAddress = useCallback(async() => {
+	const fetchAddress = useCallback(async () => {
 		try {
 			const response = await addressList({
 				customerId: customer?.id
@@ -40,7 +38,7 @@ const PrivateLayout = ({ ...props }) => {
 				dispatch(getAllAddressList(response?.data?.data || []))
 			}
 		} catch (error) {
-			if(error?.response?.data?.message === 'No record found.'){
+			if (error?.response?.data?.message === 'No record found.') {
 				dispatch(getAllAddressList([]))
 				return
 			}

@@ -65,11 +65,11 @@ const CountrySelector = ({
 			className={classNames('relative inline-block text-left', className)}
 			{...props}
 		>
-			<Menu.Button className="flex justify-center items-center w-full py-[13px] px-3 bg-cultured1 rounded-lg">
+			<Menu.Button className="flex justify-center items-center w-full py-[13px] px-2 bg-cultured1 rounded-lg">
 				<div className="flex justify-between items-center mr-2">
 					<img
 						src={`https://flagcdn.com/${config?.currentFlag}.svg`}
-						className="w-6 mr-1"
+						className="w-7 mr-1"
 						alt="flag"
 					/>
 				</div>

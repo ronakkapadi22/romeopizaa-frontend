@@ -31,7 +31,7 @@ const CartDrawer = ({ handleToggle, ...props }) => {
 					className="text-black w-5 h-5 cursor-pointer"
 				/>
 			</div>
-			{cartItems?.length ? <CartItem cartList={cartItems} {...{ handleToggle }} className="mt-12" /> : <div {...props} className={classNames('mx-4 my-4 bg-white !lg:my-8 md:px-20 md:py-16')}>
+			{cartItems?.length ? <CartItem cartList={cartItems} {...{ handleToggle }} className="mt-12 overflow-auto h-[600px] sm:h-[650px] md:h-[685px]" /> : <div {...props} className={classNames('mx-4 my-4 bg-white !lg:my-8 md:px-20 md:py-16')}>
 				<div className='w-full flex justify-center flex-col items-center' >
 					<Icons className='w-80 h-80' id='empty-cart' />
 					<Heading tag='head_4' headClass='mt-8' text='Your basket is empty' />
