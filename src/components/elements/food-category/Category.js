@@ -113,14 +113,14 @@ const Category = ({ className, isSmall, isRedirect, categories, ...props }) => {
 				slidesToSlide={1}
 				swipeable
 			>
-				{categories?.map(({ id, name }) => (
+				{categories?.map(({ id, name, imagepath }) => (
 					<div
 						key={id}
 						onClick={() => handleRedirect({id, name})}
 						className="my-6 cursor-pointer flex justify-center items-center flex-col"
 					>
 						<div className="w-[90px] sm:w-[102px] h-[90px] sm:h-[102px] rounded-[50%] bg-cultured1 flex items-center justify-center">
-							<Icons className="w-12 sm:w-auto" id={String(name).replace(/ /g, "_")?.toLowerCase()} />
+							<img className="w-12 sm:w-auto" src={imagepath}/>
 						</div>
 						<Heading
 							headClass="text-[18px] text-center mt-1"
