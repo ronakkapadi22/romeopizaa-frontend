@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import NotFound from '../pages/not-found'
 import Header from '../components/home/navbar/header'
@@ -18,12 +18,6 @@ const PublicLayout = ({ isDefaultAccess, ...props }) => {
 	const history = useHistory()
 	const storeConfig = useSelector(({ storeConfig }) => storeConfig)
 	const isRedirectCartPage = useSelector(({ auth }) => auth?.isRedirectCartPage)
-	const [toggle, setToggle] = useState({
-		stores: false,
-		warning: false
-	})
-
-	const handleToggle = (name, data = {}) => setToggle({ ...toggle, [name]: !toggle[name], ...data })
 
 	const fetchStoreList = useCallback(async () => {
 		try {
@@ -67,7 +61,7 @@ const PublicLayout = ({ isDefaultAccess, ...props }) => {
 					{...{ toggle: !storeConfig?.storeId }}
 					className="relative w-full flex items-center"
 				>
-					<FindStore {...{ handleToggle, selectConfigStore }} />
+					<FindStore {...{ selectConfigStore }} />
 				</CustomPortal> : null}
 		</section>
 	) : (

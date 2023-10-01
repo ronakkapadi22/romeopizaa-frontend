@@ -14,7 +14,7 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 	const handleNavigate = (path = '/') => history(path)
 	const [profile, setProfile] = useState(null)
 	const [account, setAccount] = useState({})
-	
+
 	const handleLogOutUser = () => {
 		handleLogout()
 		handleToggle()
@@ -28,7 +28,7 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 				const { data } = response?.data
 				setAccount({
 					...account, name: data?.fullname?.trim(),
-					code: String(data?.countryCode).includes('+') ? data?.countryCode  : '+' + data?.countryCode,
+					code: String(data?.countryCode).includes('+') ? data?.countryCode : '+' + data?.countryCode,
 					contact: data?.phoneNumber,
 					email: data?.email,
 					fName: data?.fName,
@@ -56,11 +56,11 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 						{!profile ? <div className="rounded-full w-[76px] h-[76px]">
 							<Icons id="profile-icon" />
 						</div> :
-						<img
-							alt="profile"
-							src={profile}
-							className="rounded-full w-[76px] h-[76px]"
-						/>}
+							<img
+								alt="profile"
+								src={profile}
+								className="rounded-full w-[76px] h-[76px]"
+							/>}
 						<div className="flex flex-col ml-6">
 							<Heading
 								tag="head_6"
@@ -78,7 +78,10 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 								iconClass="w-[24px] h-[24px] text-black"
 								key={id}
 								{...{ icon, label: name }}
-								onClick={() => handleNavigate(path)}
+								onClick={() => {
+									handleToggle()
+									handleNavigate(path)
+								}}
 							/>
 						))}
 					</div>
@@ -99,7 +102,10 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 					<Button
 						btnClass="w-full mb-2 mt-[48px]"
 						type="button"
-						onClick={() => handleNavigate('/login')}
+						onClick={() => {
+							handleToggle()
+							handleNavigate('/login')
+						}}
 						label="Login"
 						size="large"
 						apperianceType="primary"
@@ -107,7 +113,10 @@ const AuthDrawer = ({ auth, handleToggle, ...props }) => {
 					<p className="text-center font-medium text-gray1">
 						{"Don't have an account?"}
 						<span
-							onClick={() => handleNavigate('/register')}
+							onClick={() => {
+								handleToggle()
+								handleNavigate('/register')
+							}}
 							className="cursor-pointer ml-1 text-black"
 						>
 							Register

@@ -19,7 +19,7 @@ const FoodSearch = ({ name, imagepath, className, categoriename, id, price, ...p
     }, [history, dispatch])
 
     return (
-        <div className={classNames('w-full flex justify-between shadow-md p-2 mb-4 rounded-lg cursor-pointer', className)} {...props} >
+        <div onClick={() => handleSearch({id, name, path: `/products/detail/${id}`})} className={classNames('w-full flex justify-between shadow-md p-2 mb-4 rounded-lg cursor-pointer', className)} {...props} >
             <img alt='search_food' className='w-[120px] mt-[6px] h-[100px]' src={imagepath} />
             <div className='w-full pl-4' >
                 <p className='text-lg mb-2' >{name}<span className='text-gray2 text-sm'> / {categoriename} </span></p>
@@ -35,7 +35,7 @@ const FoodSearch = ({ name, imagepath, className, categoriename, id, price, ...p
                         <span>$ {Number(price).toFixed(2)}</span>
                     </p>
                 </div>
-                <p className='text-black flex items-center mt-2' onClick={() => handleSearch({id, name, path: `/products/detail/${id}`})} >Select Item <Icons id='arrow-right' className='arrow-right ml-1' /></p>
+                <p className='text-black flex items-center mt-2' >Select Item <Icons id='arrow-right' className='arrow-right ml-1' /></p>
             </div>
         </div>
     )

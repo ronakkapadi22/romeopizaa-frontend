@@ -33,7 +33,7 @@ const FoodCard = ({ className, data, ...props }) => {
 				className
 			)}>
 			<div className="w-full relative">
-				<img src={data.imagepath} alt="food-item" onClick={handleItemClick(data.id)} />
+				<img src={data.imagepath} alt="food-item" className='w-[178px] md:w-auto h-[150px] md:h-[240px]' onClick={handleItemClick(data.id)} />
 				<div className="absolute text-white top-1 p-1 right-1 lg:p-2 lg:top-2 lg:right-2 bg-[rgba(0,0,0,0.4)] rounded-3xl">
 					{wishLists[data?.id] ? <Icons id="heart-filled" className='z-10 text-red' onClick={() => removeWishList(data?.id)} /> : <Icons id="heart-outline" className='z-10' onClick={() => addWishList(data?.id)} />}
 				</div>

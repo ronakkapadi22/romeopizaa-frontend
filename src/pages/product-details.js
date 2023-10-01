@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, Fragment } from 'react'
+import React, { useState, useCallback, useEffect, Fragment, useMemo } from 'react'
 import Breadcrump from '../shared/Breadcrump'
 import Heading from '../shared/heading/Heading'
 import Label from '../shared/labels/label'
@@ -16,6 +16,7 @@ const ProductDetails = ({ ...props }) => {
 	const { id } = useParams()
 	const dispatch = useDispatch()
 	const cartItems = useSelector(({ order }) => order?.cartItems)
+	const [total, setTotal] = useState({})
 	const [productDetail, setProductDetail] = useState({})
 	const [alreadyAdded, setAlreadyAdded] = useState(false)
 	const [isUpdated, setIsUpdated] = useState(false)
@@ -36,27 +37,15 @@ const ProductDetails = ({ ...props }) => {
 		if (!clone) return
 		const current = clone.find(val => val.productId === Number(id))
 		setAlreadyAdded(clone.some(item => item.productId === Number(id)))
-		const attributes = {}
-		const modifiers = {}
-		current?.attributes?.forEach(val => {
-			attributes[val?.paiId] = {
-				id: val?.paiId, ...val
-			}
-		})
-
-		current?.modifiers?.forEach(item => {
-			modifiers[item?.paiId] = {
-				id: item?.paiId, ...item
-			}
-		})
+		console.log('current', current)
 
 		setItemData({
 			...itemData, quantity: current?.quantity || 1, attributes: {
 				selectType: 'SINGLE',
-				...attributes
+				...current?.cloneAttributes
 			}, modifiers: {
 				selectType: 'SINGLE',
-				...modifiers
+				...current?.cloneModifiers
 			},
 			instruction: current?.instruction || ''
 		})
@@ -76,23 +65,45 @@ const ProductDetails = ({ ...props }) => {
 		setIsUpdated(true)
 	}
 
-	console.log('itemData', itemData)
-
 	const handleAttributes = (e, item, mainItem) => {
 		const { value } = e.target
-		const newItem = mainItem.selectType === 'SINGLE' ? { [value]: item } : { ...itemData.attributes, [value]: item }
+		const newItem = mainItem.selectType === 'SINGLE' ? {
+			...itemData?.attributes, [mainItem?.id]: {
+				[value]: item
+			}
+		} : {
+			...itemData.attributes, [mainItem?.id]: {
+				...itemData.attributes?.[mainItem?.id], [value]: item
+			}
+		}
+
+		const prices = mainItem.selectType === 'SINGLE' ? { ...total, [mainItem?.id]: item?.price } : { ...total, [mainItem?.id]: item?.price }
+		setTotal({ ...prices })
 		setItemData({
 			...itemData, attributes: {
 				selectType: mainItem.selectType,
 				...newItem
 			}
 		})
+
 		setIsUpdated(true)
 	}
 
 	const handleModifiers = (e, item, mainItem) => {
 		const { value } = e.target
-		const newItem = mainItem.selectType === 'SINGLE' ? { [value]: item } : { ...itemData.modifiers, [value]: item }
+		const newItem = mainItem.selectType === 'SINGLE' ? {
+			...itemData?.modifiers, [mainItem?.id]: {
+				[value]: item
+			}
+		} : {
+			...itemData.modifiers, [mainItem?.id]: {
+				...itemData.modifiers[mainItem?.id], [value]: itemData.modifiers?.[mainItem?.id]?.[item?.id]?.id === item?.id ? {} : item
+			}
+		}
+
+		const prices = mainItem.selectType === 'SINGLE' ? { ...total, [mainItem?.id]: item?.price } : { ...total, [mainItem?.id]: Object.values(newItem[mainItem?.id]).map(val => (val.price || 0))?.reduce((val, accum) => val + accum, 0) }
+		setTotal({ ...prices })
+
 		setItemData({
 			...itemData, modifiers: {
 				selectType: mainItem.selectType,
@@ -109,6 +120,9 @@ const ProductDetails = ({ ...props }) => {
 			if (response.data.data) {
 				setLoading(false)
 				setProductDetail(response.data?.data)
+				setTotal({
+					[id]: response.data?.data?.price || 0
+				})
 				window.scrollTo(0, 0)
 			}
 		} catch (error) {
@@ -128,7 +142,7 @@ const ProductDetails = ({ ...props }) => {
 	}, [])
 
 	const handleAddtoCart = () => {
-		const { id, imagepath, name, price } = productDetail
+		const { id, imagepath, name } = productDetail
 		const cloneCart = [...cartItems]
 		const index = cloneCart.findIndex(val => val?.productId === id)
 		// eslint-disable-next-line no-unused-vars
@@ -139,38 +153,42 @@ const ProductDetails = ({ ...props }) => {
 		const cloneAttributes = []
 		const cloneModifiers = []
 
-		Object.keys({ ...attributes })?.forEach((val) => {
-			const data = itemData?.attributes?.[val]
+		Object.values({ ...attributes })?.forEach((val) => {
+			const data = Object.entries(val).map(([, value]) => value)
 			const attr = {
 				quantity: 1,
-				price: data?.price,
-				pamId: data?.pamId,
-				paiId: data?.id
+				price: data?.[0]?.price,
+				pamId: data?.[0]?.pamId,
+				paiId: data?.[0]?.id
 			}
 			cloneAttributes.push(attr)
 		})
 
 		Object.keys({ ...modifiers })?.forEach((val) => {
-			const data = itemData?.modifiers?.[val]
+			const data = Object.entries(val).map(([, value]) => value)
 			const attr = {
 				quantity: 1,
-				price: data?.price,
-				pamId: data?.pamId,
-				paiId: data?.id
+				price: data[0]?.price,
+				pamId: data[0]?.pamId,
+				paiId: data[0]?.id
 			}
 			cloneModifiers.push(attr)
 		})
 
 		const orderItem = {
 			productId: id,
-			price,
+			price: finalTotal,
 			name,
 			instruction: itemData.instruction,
 			imagepath,
 			quantity: itemData?.quantity,
 			attributes: cloneAttributes,
-			modifiers: cloneModifiers
+			modifiers: cloneModifiers,
+			cloneAttributes: attributes,
+			cloneModifiers: modifiers
 		}
+
+
 		dispatch(alreadyAdded ? updateItemInCart({ id: index, data: { ...orderItem } }) : addItemInCart(orderItem))
 		enqueueSnackbar(isUpdated || alreadyAdded ? 'Item updated on basket successfully.' : 'Item added on basket successfully.', {
 			variant: 'success'
@@ -178,6 +196,11 @@ const ProductDetails = ({ ...props }) => {
 
 		dispatch(handleOpenCheckoutModal(true))
 	}
+
+	const finalTotal = useMemo(() => {
+		const clone = Object.values({ ...total })
+		return clone.reduce((val, accum) => val + accum, 0)
+	}, [total])
 
 	if (loading) return <Loader />
 
@@ -208,7 +231,7 @@ const ProductDetails = ({ ...props }) => {
 									<Heading
 										tag="head_4"
 										headClass="!font-semibold"
-										text={`$${productDetail.price}`}
+										text={`£${productDetail.price}`}
 									/>
 									<p className="text-lg text-gray1 mt-4">
 										{productDetail?.description}
@@ -251,9 +274,9 @@ const ProductDetails = ({ ...props }) => {
 												>
 													<div>
 														<p className="text-lg">{value.name}</p>
-														<p className="text-lg">+${value.price}</p>
+														<p className="text-lg">+£{value.price}</p>
 													</div>
-													<input checked={itemData?.attributes?.[value?.id]?.id === value?.id} value={value?.id} onChange={(e) => handleAttributes(e, value, item)} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
+													<input checked={itemData.attributes[item?.id]?.[value?.id]?.id == value?.id} value={value?.id} onChange={(e) => handleAttributes(e, value, item)} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
 												</div>
 											))}
 										</div>
@@ -285,9 +308,9 @@ const ProductDetails = ({ ...props }) => {
 												<div className="flex justify-between items-center">
 													<div>
 														<p className="text-lg">{value?.name}</p>
-														<p className="text-lg">+${value?.price}</p>
+														<p className="text-lg">+£{value?.price}</p>
 													</div>
-													<input checked={itemData?.modifiers?.[value?.id]?.id === value?.id} onChange={(e) => handleModifiers(e, value, item)} value={value.id} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
+													<input checked={itemData.modifiers[item?.id]?.[value?.id]?.id == value?.id} onChange={(e) => handleModifiers(e, value, item)} value={value.id} className="cursor-pointer" type={item?.selectType === 'SINGLE' ? "radio" : "checkbox"} />
 												</div>
 											</div>))}
 										{/* <div className="mt-6">
@@ -339,7 +362,7 @@ const ProductDetails = ({ ...props }) => {
 								<Button
 									btnClass="w-full mt-[48px]"
 									type="button"
-									label={`Add ${itemData.quantity} to order $${productDetail.price * itemData.quantity}`}
+									label={`Add ${itemData.quantity} to order £${Number(finalTotal * itemData.quantity).toFixed(2)}`}
 									size="large"
 									onClick={handleAddtoCart}
 									apperianceType="primary"
