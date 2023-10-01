@@ -15,7 +15,7 @@ const CustomInput = ({ value, defaultValue, error, inputRef, ...props }) => {
 				{...props}
 				{...{ value }}
 				placeholder="10/06/2023"
-				defaultValue={defaultValue}
+				defaultValue={defaultValue || value}
 				ref={inputRef}
 			/>
 			<Icons
@@ -45,12 +45,12 @@ const DatePicker = ({
 			) : null}
 			<Flatpickr
 				{...props}
-				defaultValue={defaultValue}
+				defaultValue={defaultValue || value}
 				onChange={(data) => handleChange({ target: { name, value: data[0] } })}
 				value={value}
 				options={{
 					dateFormat,
-					minDate: Date.now(),
+					minDate: new Date().setDate(new Date().getDate() - 1),
 					mode: 'single'
 				}}
 				render={({ defaultValue, value, ...props }, ref) => {

@@ -340,7 +340,7 @@ const CartDetail = ({ className, ...props }) => {
 			{...props}
 			className={classNames('mx-4 my-4 !lg:my-8 md:px-20 md:py-16', className)}
 		>
-			<Breadcrump className="pb-8" />
+			<Breadcrump className="bg-white md:bg-transparent pb-8" />
 			<div className="w-full grid grid-cols-12 gap-4 md:gap-8">
 				<div className="col-span-12 md:col-span-8 bg-white drop-shadow-md p-8">
 					<Heading
@@ -355,7 +355,7 @@ const CartDetail = ({ className, ...props }) => {
 								{addList?.length ? `${selectedAddress?.streetName}, ${selectedAddress?.locality}(${selectedAddress?.postCode}), ${selectedAddress?.country}` : "Add address"}
 							</p>
 							<Label
-								label={addList?.length ? "Edit Address" : "Add"} onClick={() => handleAddress()}
+								label={addList?.length ? "Edit" : "Add"} onClick={() => handleAddress()}
 								className="px-4 py-1 cursor-pointer bg-cultured rounded-[14px]"
 							/>
 						</div>

@@ -41,7 +41,7 @@ const OrderContainer = ({ order, handleClose }) => {
             <div className="w-full mx-auto mt-8 sm:w-[450px]" >
                 {order?.address?.streetName ? <div className="flex my-4 font-bold justify-between items-center" >
                     <p>Delivery</p>
-                    <p>{order?.address?.streetName},{order?.address?.locality}</p>
+                    <p className="text-right">{order?.address?.streetName},{order?.address?.locality}</p>
                 </div> : null}
                 <div className="flex my-4 font-bold justify-between items-center" >
                     <p>Order ID</p>

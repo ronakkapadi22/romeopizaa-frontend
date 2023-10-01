@@ -69,7 +69,7 @@ const Header = ({ ...props }) => {
 					{...{ isOpenCheckoutModal }}
 					icon="cart"
 				>
-					{isOpenCheckoutModal ? <div className={classNames('w-[360px] z-[9] bg-white shadow-[0_2px_12px_0px_rgba(0,0,0,0.3)] rounded-lg h-[400px] top-[50px] -right-[50px] md:right-0 absolute', isOpenCheckoutModal ? '-right-[48px] sm:right-0' : '')}>
+					{isOpenCheckoutModal ? <div className={classNames('w-[340px] z-[9] bg-white shadow-[0_2px_12px_0px_rgba(0,0,0,0.3)] rounded-lg h-[400px] top-[50px] -right-[50px] md:right-0 absolute', isOpenCheckoutModal ? '-right-[48px] sm:right-0' : '')}>
 						<div {...props} className="relative w-full p-4 bg-white overflow-auto h-full rounded-lg ">
 							<div className="flex items-center justify-between">
 								<Heading

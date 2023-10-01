@@ -2,7 +2,7 @@ import { isValidPhoneNumber } from 'libphonenumber-js'
 
 const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+// const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
 export const validation = (name, value, data = null) => {
 	switch (name) {
@@ -45,6 +45,24 @@ export const validation = (name, value, data = null) => {
 			} else return ''
 		default:
 			return ''
+	}
+}
+
+export const tableBookingValidation = (name, value) => {
+	switch (name) {
+		case 'name':
+		case 'selectedTable':
+		case 'person':
+			if (!value || String(value)?.trim() === '') {
+				return 'Name is required.'
+			}else return ''
+		case 'phoneNumber':
+			if (!value || String(value)?.trim() === '') {
+				return 'Phone number is required.'
+			} else if (value?.length <= 12 && !isValidPhoneNumber(value)) {
+				return 'Invalid phone number.'
+			} else return ''	
+		default: return null
 	}
 }
 

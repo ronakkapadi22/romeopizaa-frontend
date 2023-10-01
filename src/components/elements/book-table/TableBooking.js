@@ -5,7 +5,7 @@ import TimePicker from '../../../shared/forms/TimePicker'
 import Input from '../../../shared/forms/Input'
 import FieldGroup from '../../../shared/forms/FieldGroup'
 import Button from '../../../shared/Buttons/Button'
-import { validation } from '../../../utils/validation'
+import { tableBookingValidation } from '../../../utils/validation'
 import CountrySelector from '../../../shared/coutry-selector'
 import Selector from '../../../shared/forms/Selector'
 import { enqueueSnackbar } from 'notistack'
@@ -64,7 +64,7 @@ const TableBooking = ({ ...props }) => {
 				[name]: name !== 'phoneNumber' ? value : value?.length > 11 ? tableBooking.phoneNumber : value,
 				person: newVal > 10 ? tableBooking.person : newVal
 			})
-			setError({ ...error, [name]: validation(name, newVal) })
+			setError({ ...error, [name]: tableBookingValidation(name, newVal) })
 		}
 
 	const handleCoutryCode = (value) => {
@@ -73,7 +73,7 @@ const TableBooking = ({ ...props }) => {
 			countryCode: value?.code
 		})
 		setError({
-			...error, 'phoneNumber': validation('phoneNumber', `${value?.code}${tableBooking.phoneNumber}`)
+			...error, 'phoneNumber': tableBookingValidation('phoneNumber', `${value?.code}${tableBooking.phoneNumber}`)
 		})
 	}
 
@@ -116,7 +116,7 @@ const TableBooking = ({ ...props }) => {
 		const { person, phoneNumber, countryCode, selectedTable, date, name, time } = tableBooking
 		Object.keys({ person, phoneNumber, countryCode, selectedTable, date, name, time }).forEach((val) => {
 			const newVal = val !== 'phoneNumber' ? tableBooking[val] : `${countryCode}${tableBooking[val]}`
-			const message = validation(val, newVal)
+			const message = tableBookingValidation(val, newVal)
 			if (message) {
 				error[val] = message
 			}
@@ -212,7 +212,8 @@ const TableBooking = ({ ...props }) => {
 				<DatePicker
 					className="w-full mb-4 col-span-6 sm:col-span-3"
 					{...{
-						dateFormat: 'd/m/Y',
+						dateFormat: 'd/m/Y',		
+						defaultValue: new Date(),
 						value: tableBooking.date,
 						label: 'Date',
 						name: 'date',

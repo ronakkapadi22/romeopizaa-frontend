@@ -121,7 +121,7 @@ const Registration = ({ ...props }) => {
     }
 
     return (
-        <div {...props} className="relative w-full px-4 sm:px-[80px] h-[calc(100vh-92px)] flex items-center justify-center">
+        <div {...props} className="relative w-full px-4 sm:px-[80px] h-[calc(100vh-40px)] sm:h-[calc(100vh-92px)] flex items-center justify-center">
             <div className="flex justify-center items-center">
                 <div className="w-full sm:w-[400px]">
                     <Heading
