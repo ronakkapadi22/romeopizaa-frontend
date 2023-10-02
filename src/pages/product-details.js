@@ -32,6 +32,13 @@ const ProductDetails = ({ ...props }) => {
 		}
 	})
 
+	const handleData = (data = []) => {
+		let obj = {}
+		const items = data[0]
+		obj[items?.id] = items
+		return obj
+	}
+
 	const fetchUpdatedData = useCallback((productData) => {
 		const clone = [...cartItems]
 		if (!clone) return
@@ -42,11 +49,9 @@ const ProductDetails = ({ ...props }) => {
 		let obj = {}
 		if(attributes?.length && attributes?.filter(data => data?.name === 'Choose one' || data?.name === 'Choose Your Flavour')?.length){
 			const clone = attributes?.filter(data => data?.name === 'Choose one' || data?.name === 'Choose Your Flavour')
-			obj = {
-				[clone?.[0]?.id]: {
-					[clone?.[0]?.attributes_items?.[0]?.id] : clone?.[0]?.attributes_items?.[0]	
-				}
-			}
+			clone?.forEach(items => {
+				obj[items?.id] = handleData(items?.attributes_items)
+			})
 			const totalPrice = {}
 			const base = {...current?.cloneAttributes, ...current?.cloneModifiers}
 			Object.keys(base).forEach(val => {
