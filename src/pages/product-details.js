@@ -32,16 +32,44 @@ const ProductDetails = ({ ...props }) => {
 		}
 	})
 
-	const fetchUpdatedData = useCallback(() => {
+	const fetchUpdatedData = useCallback((productData) => {
 		const clone = [...cartItems]
 		if (!clone) return
 		const current = clone.find(val => val.productId === Number(id))
 		setAlreadyAdded(clone.some(item => item.productId === Number(id)))
-		console.log('current', current)
+
+		const { attributes } = productData
+		let obj = {}
+		if(attributes?.length && attributes?.filter(data => data?.name === 'Choose one' || data?.name === 'Choose Your Flavour')?.length){
+			const clone = attributes?.filter(data => data?.name === 'Choose one' || data?.name === 'Choose Your Flavour')
+			obj = {
+				[clone?.[0]?.id]: {
+					[clone?.[0]?.attributes_items?.[0]?.id] : clone?.[0]?.attributes_items?.[0]	
+				}
+			}
+			const totalPrice = {}
+			const base = {...current?.cloneAttributes, ...current?.cloneModifiers}
+			Object.keys(base).forEach(val => {
+				const data = Object.values(base[val])
+				totalPrice[val] = data?.map(item => (item.price))?.reduce((a, i) => a + i, 0)
+			})
+			setTotal({[clone?.[0]?.id]: clone?.[0]?.attributes_items?.[0]?.price, ...totalPrice})
+		}else {
+			const totalPrice = {}
+			const base = {...current?.cloneAttributes, ...current?.cloneModifiers}
+			Object.keys(base).forEach(val => {
+				const data = Object.values(base[val])
+				totalPrice[val] = data?.map(item => (item.price))?.reduce((a, i) => a + i, 0)
+			})
+			setTotal({
+				[productData?.id] : productData?.price, ...totalPrice
+			})
+		}
 
 		setItemData({
 			...itemData, quantity: current?.quantity || 1, attributes: {
 				selectType: 'SINGLE',
+				...obj,
 				...current?.cloneAttributes
 			}, modifiers: {
 				selectType: 'SINGLE',
@@ -120,10 +148,8 @@ const ProductDetails = ({ ...props }) => {
 			if (response.data.data) {
 				setLoading(false)
 				setProductDetail(response.data?.data)
-				setTotal({
-					[id]: response.data?.data?.price || 0
-				})
 				window.scrollTo(0, 0)
+				return response?.data?.data || {}
 			}
 		} catch (error) {
 			if (error?.response?.data) {
@@ -136,9 +162,14 @@ const ProductDetails = ({ ...props }) => {
 		}
 	}, [id])
 
+	const handleFetchData = async() => {
+		await fetchProductDetail().then(response => {
+			fetchUpdatedData(response)
+		}) 
+	}
+
 	useEffect(() => {
-		fetchProductDetail()
-		fetchUpdatedData()
+		handleFetchData()
 	}, [])
 
 	const handleAddtoCart = () => {

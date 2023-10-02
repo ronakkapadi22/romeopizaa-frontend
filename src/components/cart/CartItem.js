@@ -72,7 +72,7 @@ const CartItem = ({ className, cartList, handleToggle, isPopup, ...props }) => {
 					</div>
 					<div className="flex font-semibold text-lg sm:text-xl justify-between items-center bg-cultured rounded p-[14px]">
 						<Heading tag="head_5" text="Subtotal" />
-						<Heading tag="head_5" text={`$ ${data?.quantity * data?.price}`} />
+						<Heading tag="head_5" text={`$ ${Number(data?.quantity * data?.price).toFixed(2)}`} />
 					</div>
 				</div>
 			))}
