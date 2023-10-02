@@ -213,7 +213,7 @@ const ProductDetails = ({ ...props }) => {
 
 		const orderItem = {
 			productId: id,
-			price: finalTotal,
+			price: Object.values(total).reduce((a, b) => a + b, 0) == 0 ? Number(productDetail?.price * itemData?.quantity).toFixed(2)  : finalTotal,
 			name,
 			instruction: itemData.instruction,
 			imagepath,
@@ -237,6 +237,8 @@ const ProductDetails = ({ ...props }) => {
 		const clone = Object.values({ ...total })
 		return clone.reduce((val, accum) => val + accum, 0)
 	}, [total])
+
+	console.log('productDetail', productDetail)
 
 	if (loading) return <Loader />
 
@@ -398,7 +400,7 @@ const ProductDetails = ({ ...props }) => {
 								<Button
 									btnClass="w-full mt-[48px]"
 									type="button"
-									label={`Add ${itemData.quantity} to order £${Number(finalTotal * itemData.quantity).toFixed(2)}`}
+									label={`Add ${itemData.quantity} to order £${Object.values(total).reduce((a, b) => a + b, 0) == 0 ? Number(productDetail.price * itemData.quantity).toFixed(2) : Number(finalTotal * itemData.quantity).toFixed(2)}`}
 									size="large"
 									onClick={handleAddtoCart}
 									apperianceType="primary"
