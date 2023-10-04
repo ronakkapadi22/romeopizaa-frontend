@@ -50,7 +50,7 @@ const DatePicker = ({
 				value={value}
 				options={{
 					dateFormat,
-					minDate: new Date().setDate(new Date().getDate() - 1),
+					minDate: 'today',
 					mode: 'single'
 				}}
 				render={({ defaultValue, value, ...props }, ref) => {

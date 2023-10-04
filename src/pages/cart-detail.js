@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { classNames } from '../utils/helper'
 import Heading from '../shared/heading/Heading'
 import Label from '../shared/labels/label'
@@ -19,6 +19,7 @@ import CheckoutLayout from '../components/payment/Checkout'
 import Breadcrump from '../shared/Breadcrump'
 import OrderInfo from '../components/orders/orderInfo'
 import LoginRequiredPopup from '../components/cart/LoginRequired'
+import DatePicker from '../shared/forms/DatePicker'
 
 const stripePromise = loadStripe('pk_test_51NdtmWA5wqCNycpnDrogeALWkhd1N4qKvxyKzwEbPairCiiMvKPjB6n4hPTPvKv3o8oBNR4SDtpWJIF6NKM1Dy8400cR3TL7Ku')
 
@@ -44,6 +45,7 @@ const delivery_mode = [
 
 const CartDetail = ({ className, ...props }) => {
 	const history = useHistory()
+	const dateRef = useRef()
 	const customer = useSelector(({ auth }) => auth?.user)
 	const isRedirectCartPage = useSelector(({ auth }) => auth?.isRedirectCartPage)
 	const cartItems = useSelector(({ order }) => order?.cartItems)
@@ -281,6 +283,14 @@ const CartDetail = ({ className, ...props }) => {
 		setTipCode(array?.length === 0 ? '$0.00' : value?.length < 6 ? array : tipCode)
 	}
 
+	useEffect(() => {
+		if(dateRef?.current){
+			dateRef.current.click()
+		}
+	}, [dateRef])
+
+	console.log('dateRef', dateRef)
+
 	const handlePaymentIntent = async () => {
 
 		if (!customer) {
@@ -292,7 +302,6 @@ const CartDetail = ({ className, ...props }) => {
 			return handleToggle('address')
 		}
 		setLoading(true)
-		console.log('subTotal', subTotal, totalTax, discountData)
 		try {
 			const response = await createPaymentIntent({
 				amount: (Number(subTotal) + Number(totalTax) + 1 - discountData?.discountAmount || 0) * 100,

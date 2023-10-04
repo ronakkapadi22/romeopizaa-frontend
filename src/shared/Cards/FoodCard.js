@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { classNames } from '../../utils/helper'
 import Label from '../labels/label'
 import Heading from '../heading/Heading'
@@ -24,6 +24,9 @@ const FoodCard = ({ className, data, ...props }) => {
 		dispatch(addWish({ [id]: false }))
 	}
 
+	const rating = useMemo(() => {
+		return Number(Math.ceil(Math.random() * 5)).toFixed(1)
+    }, [])
 
 	return (
 		<div
@@ -49,7 +52,7 @@ const FoodCard = ({ className, data, ...props }) => {
 					icon="star-filled"
 					iconClass="text-orange w-[12px] lg:w-4 mr-1"
 					className="px-3 py-1 text-[12px] lg:text-base bg-cultured inline-flex rounded-3xl items-center font-semibold"
-					label={Number(Math.ceil(Math.random() * 5)).toFixed(1)}
+					label={rating}
 				/>
 			</div>
 			<div className="flex flex-col lg:flex-row mt-1 text-gray1 text-sm lg:items-center">

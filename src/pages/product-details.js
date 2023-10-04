@@ -238,7 +238,11 @@ const ProductDetails = ({ ...props }) => {
 		return clone.reduce((val, accum) => val + accum, 0)
 	}, [total])
 
-	console.log('productDetail', productDetail)
+	const modifiers = productDetail?.modifiers?.filter((item) => {
+		if(item?.modifiers_items?.length){
+			return item
+		}else return null
+	})
 
 	if (loading) return <Loader />
 
@@ -321,7 +325,7 @@ const ProductDetails = ({ ...props }) => {
 									</div>
 								))}
 
-								{productDetail?.modifiers && productDetail?.modifiers?.map((item) => (
+								{modifiers?.length ? productDetail?.modifiers?.map((item) => (
 									<div
 										key={item.id}
 										className="w-full bg-cultured rounded-md p-6 mt-8"
@@ -335,10 +339,6 @@ const ProductDetails = ({ ...props }) => {
 												/>
 												<p className="text-gray1 text-lg">Choose up to 1</p>
 											</div>
-											<Label
-												className="px-[14px] py-[6px] rounded-3xl bg-[#CEF7D0] text-green"
-												label="Required"
-											/>
 										</div>
 										<hr className="mt-6 text-light-gray" />
 										{item.modifiers_items && item.modifiers_items?.map((value) => (
@@ -363,7 +363,7 @@ const ProductDetails = ({ ...props }) => {
 										</div>
 									</div> */}
 									</div>
-								))}
+								)) : null}
 								<div className="w-full bg-cultured rounded-md p-6 mt-8">
 									<div className="flex justify-between items-center">
 										<Heading

@@ -42,3 +42,48 @@ export const constant = {
 	// cancel order
 	CANCEL_ORDER: "CANCEL_ORDER"
 }
+
+export const timing = [
+	{
+		id: 1, 
+		day: 'Monday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 2, 
+		day: 'Tuesday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 3, 
+		day: 'Wednesday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 4, 
+		day: 'Thrusday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 5, 
+		day: 'Friday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 6, 
+		day: 'Saturday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	},
+	{
+		id: 7, 
+		day: 'Sunday', 
+		starttime: '10:00', 
+		endtime: '08:00' 
+	}
+]
