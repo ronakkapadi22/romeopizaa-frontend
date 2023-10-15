@@ -218,7 +218,8 @@ const CartDetail = ({ className, ...props }) => {
 			taxTotalAmount: Number(totalTax),
 			discountRate: 0,
 			noOfPersons: '1',
-			DeliveryType: activeKey,
+			deliveryType: activeKey,
+			deliveryAmount: 1,
 			tipAmount: Number(String(tipCode).replace('$', '')),
 			createFrom: 'WEB',
 			discountType: null,
@@ -235,11 +236,11 @@ const CartDetail = ({ className, ...props }) => {
 				discountTotal: 0,
 				attributes,
 				modifiers
-			})),
+			}))
 
-			"discountRate": 0,
-			"discountAmount": 1.00,
-			"discountType": "FIX"
+			// "discountRate": 0,
+			// "discountAmount": 1.00,
+			// "discountType": "FIX"
 
 		}
 
